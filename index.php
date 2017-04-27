@@ -1,12 +1,16 @@
 <?php
     define('ROOT_PATH', dirname(__FILE__));
 
-    $file = ROOT_PATH . '/bg.bmp';
+    $file = ROOT_PATH . '/bg1.bmp';
 
     // 打开文件
     $pf = fopen($file, 'ab+');
 
-    // 1）BMP文件头
+    // ####################################################
+    // 位图文件头
+    // 大小: 14 byte
+    // 
+    // 
     // 第 1 2 个字节是 BM
     $exten = fread($pf, 2);
 
@@ -23,59 +27,50 @@
     $devi = fread($pf, 4);
     $devi = unpack('L', $devi);
 
-    // 读到第 28 个字节
-    fread($pf, 14);
+    // 返回文件指针头
+    rewind($pf);
 
-    // 2）点位图信息
-    // 第 29 30 字节描述的是像素的位数  S – 不带有符号的短模式[short]（通常是16位，按机器字节排序）
-    $point = fread($pf, 2);
-    $point = unpack('S', $point);
+    // 偏移到数据区
+    $devi = $devi[1];
+    
+    // 直接读取前面的 $devi 个字节，跳到数据区
+    $image = "";
+    $image = fread($pf, $devi);
 
-    // 读到第 34 位
-    fread($pf, 4);
+    $data = file_get_contents('data.txt');
+    $length = strlen($data);
 
-    // 第 35、36、37、38字节确定图像字节数的多少，但通常此项为空。
-    $bit_count = fread($pf, 4);
-    $bit_count = unpack('L', $bit_count);
-
-
-    // 一次读取一个字节 也就是八位
+    // 一次读取4个字节
+    $i = 0;
     while (!feof($pf))
     {
         // 3 个字节代表一个像素
         $red   = fread($pf, 1);
         $green = fread($pf, 1);
         $blue  = fread($pf, 1);
+        $Alpha = fread($pf, 1);
 
 
-        // C 255
-        // 红色可以改  2 个
-        $red   = unpack('C', $red)[1];
-        // 绿色可以改  1 个
-        $green = unpack('C', $green)[1];
-        // 蓝色可以改  5 个
-        $blue  = unpack('C', $blue)[1];
-
-
-        // TODO
-        echo $red;
-        var_dump(bin2bstr($red));
-
+        if ($i < $length)
+        {
+            $image .= $red . $green . $blue . $data{$i};
+        }
+        else
+        {
+            $image .= $red . $green . $blue . $Alpha;
+        }
+        
+        $i ++;
         // 3）位图阵列
         // 从第 39 个字节开始，每 3 个字节表示一个像素，这 3 个字节依次表示该像素的红、绿、蓝亮度分量值
-        exit();
     }
 
     fclose($pf);
 
-
-    // 把 char 类型转化为 二进制显示的字符串
-    function bin2bstr($input)
+    if (strlen($data) > $i)
     {
-        // 转化为二进制
-        $bin = base_convert($input, 10, 2);
-        // 填充 0
-        $bin = str_pad($bin, 8, '0', STR_PAD_LEFT);
-
-        return $bin;
+        echo "需要加密的文件过大，图像文件已被破坏";
     }
+
+    // 写入新文件
+    file_put_contents('image.bmp', $image);
