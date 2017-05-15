@@ -139,7 +139,7 @@
             // 文件名字长度 四个字节长度存储
             $this->file_name_length = str_pad(strlen($this->file_name), 4, '0', STR_PAD_LEFT);
             // 把文件信息添加到文件内容前面
-            $this->file_data = file_get_contents($file);
+            $this->file_data = file_get_contents($path);
             // 文件数据长度 八个字节长度存储
             $this->file_data_length = str_pad(strlen($this->file_data), 8, '0', STR_PAD_LEFT);
         }
