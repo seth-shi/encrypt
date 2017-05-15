@@ -11,7 +11,7 @@
 
    $encrypt = new Encrypt();
    // 加密文件
-   $encrypt->encryptFile('data/data.txt', 'data/bg.bmp') or die($encrypt->getErrorMsg()); <br />
+   $encrypt->encryptFile('data/data.txt', 'data/bg.bmp') or die($encrypt->getErrorMsg());
    echo "加密成功";
 ```
 ### 解密说明
@@ -22,6 +22,6 @@
 
    $encrypt = new Encrypt();
    // 解密文件
-   $encrypt->decryptFile('gps.bmp') or die($encrypt->getErrorMsg()); <br />
+   $encrypt->decryptFile('gps.bmp') or die($encrypt->getErrorMsg());
    echo "解密成功";
 ```
