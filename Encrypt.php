@@ -1,10 +1,29 @@
 <?php
 
-
+    /**
+     * 加密文件到 BMP 位图中
+     */
     class Encrypt
     {
-        private $data;
+        // 文件名
+        private $file_name;
+        // 文件名字长度 ==== 如果不够 4 个字节长度 ==> 将会填充成 4 个字节
+        private $file_name_length;
+        // 文件数据长度 ==== 如果不够 8 个字节长度 ==> 将会填充成 8 个字节 
+        private $file_data;
+        // 文件数据的长度
+        private $file_data_length;
+
+        // 文件指针
         private $pf;
+
+
+        // 错误号
+        private $errno;
+        // 错误消息
+        private $errmsg;
+
+
 
         // 需要加密或者解密的文件
         public function __construct()
@@ -15,91 +34,148 @@
 
         /**
          * 加密文件
-         * @param $bmp        bmp 文件 必需
-         * @param $encrypt    加密内容
+         * @param $path             加密文件， 绝对路径
+         * @param $bmp              bmp 要加密到的图片文件 绝对路径
+         * @param string $new_name  加密出来的文件，需要 bmp 文件
+         * @return bool
          */
-        public function encryptFile($bmp, $content)
+        public function encryptFile($path, $bmp, $new_name = 'gps.bmp')
         {
-            // 判断是否为文件
-            if (is_file($content))
+            // 文件是否存在
+            if (!is_file($bmp))
             {
+                $this->errno = 1;
 
-                // 把文件信息添加到文件内容前面
-                $encrypt = $content;
+                return false;
+            }
+
+            // 文件是否存在
+            if (is_file($path))
+            {
+                // 初始化文件信息
+                $this->initFileInfo($path);
             }
             else
             {
-                // 四个 0 表示不是文件
-                $encrypt = "0000" . $content;
+                // 不是文件
+                $this->errno = 2;
+
+                return false;
             }
 
 
-            // 获取文件偏移数据位置
+            // 获取 BMP 文件偏移数据位置
             $offset = $this->getOffsetPoint($bmp);
 
+            // 打开文件
             $pf = fopen($bmp, 'rb');
-            // 图片数据
-            $data = "";
-            $data = fread($pf, $offset);
 
-            $length = strlen($encrypt);
+            // 一次性读取完文件头信息 无法写入数据区域
+            $data = fread($pf, $offset);
+            
+            // 获取格式化文件信息  第一个是文件信息长度， 第二个是文件内容
+            list($length, $content) = $this->getFormatFileInfo();
+
+
+            // 把 Alpha 换成加密内容
             for ($i = 0; !feof($pf); ++$i)
             {
-                // 3 个字节代表一个像素
+                // 3 个字节代表一个像素 最后一个字节是 Alpha 通道-透明度
                 $red   = fread($pf, 1);
                 $green = fread($pf, 1);
                 $blue  = fread($pf, 1);
                 $alpha = fread($pf, 1);
 
-                // 把图片写入 $data  如果读取完 $encrypt 就使用原来 bmp 的内容
+                // 前面四个字节存储文件名长度
                 if ($i < $length)
                 {
-                    $data .= $red . $green . $blue . $data{$i};
+                    $encrypt = $content{$i};
                 }
                 else
                 {
-                    $data .= $red . $green . $blue . $alpha;
+                    $encrypt = $alpha;
                 }
+
+                $data .= $red . $green . $blue . $encrypt;
+
             }
 
+            // 关闭文件
             fclose($pf);
 
+            // 加密内容过多
             if ($length > $i)
             {
-                echo "需要加密的文件过大，图像文件已被破坏";
+                $this->errno = 3;
+
+                return false;
             }
 
-            file_put_contents('gps.bmp', $data);
+            // 把内容写成新图片
+            if (file_put_contents($new_name, $data))
+            {
+                return true;
+            }
+            else
+            {
+                $this->errno = 4;
 
-            echo "加密成功";
+                return false;
+            }
+
         }
 
         /**
          * 获取文件信息
-         * @param $filename
+         * @param $path
          * @return string
          */
-        private function getFileInfo($filename)
+        private function initFileInfo($path)
         {
-            $name = basename($filename);
-            // 文件名长度
-            $size = strlen($name);
-            $size = str_pad($size, 4, '0', STR_PAD_LEFT);
+            $file = basename($path);
 
-            // 文件内容长度 20 个字节存储
-            $length = strlen(file_get_contents($filename));
-            $length = str_pad($size, 20, '0', STR_PAD_LEFT);
+            // base64 加密后的文件名
+            $this->file_name = base64_encode($file);
+            // 文件名字长度 四个字节长度存储
+            $this->file_name_length = str_pad(strlen($this->file_name), 4, '0', STR_PAD_LEFT);
+            // 把文件信息添加到文件内容前面
+            $this->file_data = file_get_contents($file);
+            // 文件数据长度 八个字节长度存储
+            $this->file_data_length = str_pad(strlen($this->file_data), 8, '0', STR_PAD_LEFT);
+        }
 
-            // 文件名长度 一个字节可以存储 255 个数 没想出个所以然， 所以用四个字节存储
-            // 文件名长度  文件名
-            $info = $size . $name . $length;
+        // 获取格式化的文件信息
+        private function getFormatFileInfo()
+        {
+            $info = [];
+            // 先确定需要存储多大的内存存储
+            // 文件名字=4 + 文件数据=8 + $this->file_name_length + $this->file_data_length
+            $info[] = 4 + 8 + intval($this->file_name_length) + intval($this->file_data_length);
+
+
+
+            // 数据信息  和上面的 大小一一对应
+            $info[] = $this->file_name_length . $this->file_data_length . $this->file_name . $this->file_data;
 
             return $info;
         }
 
 
+        /**
+         * 解密文件
+         * @param  [type] $bmp [description]
+         * @return [type]      [description]
+         */
         public function decryptFile($bmp)
         {
+            // 文件是否存在
+            if (!is_file($bmp))
+            {
+                $this->errno = -1;
+
+                return false;
+            }
+
             // 获取文件偏移数据位置
             $offset = $this->getOffsetPoint($bmp);
 
@@ -107,12 +183,11 @@
             // 读出与内容无关的信息
             fread($pf, $offset);
 
-            // 加密文件
-            // $filename = "";
-            // 给个大于 3 的值判断
-            // $name_length = 100;
             // 文件内容
-            $data = "";
+            $data['file_name_length'] = "";
+            $data['file_data_length'] = "";
+            $data['file_name'] = "";
+            $data['file_data'] = "";
             // 内容长度
             // $length = 1000;
 
@@ -124,10 +199,36 @@
                 $blue  = fread($pf, 1);
                 $alpha = fread($pf, 1);
 
-                $data .= $alpha;
+                
+                if ($i < 4)
+                {
+                     $data['file_name_length'] .= $alpha;
+                }
+                elseif ($i < 12)
+                {
+                    $data['file_data_length'] .= $alpha;
+                }
+                elseif ($i < (12 + $data['file_name_length']))
+                {
+                    $data['file_name'] .= $alpha;
+                }
+                elseif ($i < (12 + $data['file_name_length'] + $data['file_data_length']))
+                {
+                    $data['file_data'] .= $alpha;
+                }
+                else
+                {
+                    break;
+                }
+
             }
 
-            file_put_contents('gps.txt', $data);
+            // 文件名
+            $data['file_name'] = base64_decode($data['file_name']);
+       
+            file_put_contents($data['file_name'], $data['file_data']);
+
+            return true;
         }
 
         /**
@@ -159,6 +260,46 @@
             fclose($pf);
 
             return $offset;
+        }
+
+        /**
+         * 获取错误信息
+         * @return string
+         */
+        public function getErrorMsg()
+        {
+            $this->setErrorMsg();
+
+            return $this->errmsg;
+        }
+
+        /**
+         * 设置错误信息
+         */
+        private function setErrorMsg()
+        {
+            switch ($this->errno)
+            {
+                case -1:
+                    $this->errmsg = "要解密的 BMP 文件不存在";
+                    break;
+
+
+                case 1:
+                    $this->errmsg = "加密到的 BMP 图片不存在";
+                    break;
+                case 2:
+                    $this->errmsg = "要加密的文件不存在";
+                    break;
+                case 3:
+                    $this->errmsg = "需要加密的文件过大";
+                    break;
+                case 4:
+                    $this->errmsg = "生成 BMP 文件错误";
+                default:
+                    $this->errmsg = "未知错误";
+                    break;
+            }
         }
 
 

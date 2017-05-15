@@ -4,6 +4,8 @@
 
     $encrypt = new Encrypt();
 
-    // $encrypt->encryptFile('bg1.bmp', 'data.txt');
+    // $encrypt->encryptFile('data.txt', 'bg.bmp') or die($encrypt->getErrorMsg());
+    // echo "加密成功";
 
-    $encrypt->decryptFile('gps.bmp');
+    $encrypt->decryptFile('gps.bmp') or die($encrypt->getErrorMsg());
+    echo "解密成功";
