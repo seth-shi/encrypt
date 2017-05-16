@@ -30,7 +30,7 @@
     if ($bmp_file['error'] == 0)
     {
         $bmp_path = $bmp_file['tmp_name'];
-        $new_name = $encrypt_file['name'];
+        $new_name = $bmp_file['name'];
     }
     else
     {
