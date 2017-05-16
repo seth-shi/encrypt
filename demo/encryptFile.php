@@ -55,5 +55,5 @@
     }
     else 
     {
-        exit($encrypt->getErrorMsg());;
+        msgBoxBackPage($encrypt->getErrorMsg());
     }
