@@ -1,6 +1,5 @@
  WaitMoonMan/Encrypt
-===================================  
- ![gps](https://avatars0.githubusercontent.com/u/28035971?v=3&s=460 "gps")  
+===================================
 
 [demo 演示地址](http://encrypt.shiguopeng.cn)
 
