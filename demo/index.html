@@ -53,6 +53,37 @@
             display: none;
             color: #5FB878;
         }
+        #big_screen {
+            display: block;
+        }
+        #middle_screen {
+            display: none;
+        }
+        #small_screen {
+            display: none;
+        }
+        @media (max-width: 760px) {
+            #big_screen {
+                display: none;
+            }
+            #middle_screen {
+                display: block;
+            }
+            #small_screen {
+                display: none;
+            }
+        }
+        @media (max-width: 530px) {
+            #big_screen {
+                display: none;
+            }
+            #middle_screen {
+                display: none;
+            }
+            #small_screen {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
@@ -67,7 +98,7 @@
         <iframe src="https://ghbtns.com/github-btn.html?user=WaitMoonMan&type=follow&count=true&size=large" frameborder="0" scrolling="0" width="220px" height="30px"></iframe>
     </blockquote>
 
-<pre class="layui-code" style="text-align: center;min-width: 650px;">
+<pre id="big_screen" class="layui-code" style="text-align: center;">
 +--------------+                    +-------------+                       +--------------+
 |              |                    |             |                       |              |
 |    源文件     |     　加 密　       |             |   　　  解　密　　　　　 |              |
@@ -75,6 +106,24 @@
 |     BMP      |                    |             |                       |              |
 |              |                    |             |                       |              |
 +--------------+                    +-------------+                       +--------------+
+</pre>
+<pre id="middle_screen"  class="layui-code" style="text-align: center;">
++--------+             +---------+                +-----------+
+|        |             |         |                |           |
+| 源文件  |   加　密     |         |    解　密　     |           |
+|        | ----------> |   BMP   | ------------>  |   源文件   |
+|  BMP   |             |         |                |           |
+|        |             |         |                |           |
++--------+             +---------+                +-----------+
+</pre>
+<pre id="small_screen"  class="layui-code" style="text-align: center;">
++-------+       +-----+        +-------+
+|       |       |     |        |       |
+| 源文件 |  加密 |     |   解密  |       |
+|       |------>| BMP | ------>| 源文件 |
+|  BMP  |       |     |        |       |
+|       |       |     |        |       |
++-------+       +-----+        +-------+
 </pre>
 <pre class="layui-code" style="font-size: 18px; line-height: 30px;">
     1: 需要两个文件， 源文件<span class="layui-word-aux">（需要加密的文件）</span>   BMP<span class="layui-word-aux">（源文件需要加密到的 BMP 位图，可不上传）</span>
