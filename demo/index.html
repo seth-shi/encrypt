@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件加密-解密</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <script src="layui/layui.js"></script>
+    <script src="layui/jquery.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            padding: 20px;
+            font-family: "Microsoft YaHei UI";
+            background-color: #fbfbfb;
+        }
+        span.title {
+            color: #009688;
+            font-weight: bold;
+        }
+        .section {
+            color: #1e9fff;
+        }
+        #encrypt_file, #bmp_file, #decrypt_file  {
+            display: none;
+        }
+        label {
+            display: inline-block;
+            padding: 10px 20px;
+            min-width: 60px;
+            height: 38px;
+            line-height: 38px;
+            border: 1px solid #DFDFDF;
+            border-radius: 2px;
+            overflow: hidden;
+            background-color: #fff;
+            color: #666;
+        }
+        .upload_file:hover {
+            cursor: pointer;
+            transition: 1s;
+            opacity: 1;
+        }
+        i.layui-icon {
+            margin-right: 5px;
+            vertical-align: top;
+            font-size: 20px;
+            color: #5FB878;
+        }
+        #label_encrypt, #label_bmp {
+            display: none;
+            color: #5FB878;
+        }
+    </style>
+</head>
+<body>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+        <legend>文件 <span class="title">加密</span> - <span class="title">解密</span></legend>
+    </fieldset>
+
+    <!-- git star -->
+    <blockquote class="layui-elem-quote">
+        <iframe src="https://ghbtns.com/github-btn.html?user=WaitMoonMan&repo=Encrypt&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+        <iframe src="https://ghbtns.com/github-btn.html?user=WaitMoonMan&repo=Encrypt&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="158px" height="30px"></iframe>
+        <iframe src="https://ghbtns.com/github-btn.html?user=WaitMoonMan&type=follow&count=true&size=large" frameborder="0" scrolling="0" width="220px" height="30px"></iframe>
+    </blockquote>
+
+<pre class="layui-code" style="text-align: center;min-width: 650px;">
++--------------+                    +-------------+                       +--------------+
+|              |                    |             |                       |              |
+|    源文件     |     　加 密　       |             |   　　  解　密　　　　　 |              |
+|              | -----------------> |     BMP     | ------------------->  |    源文件     |
+|     BMP      |                    |             |                       |              |
+|              |                    |             |                       |              |
++--------------+                    +-------------+                       +--------------+
+</pre>
+<pre class="layui-code" style="font-size: 18px; line-height: 30px;">
+    1: 需要两个文件， 源文件<span class="layui-word-aux">（需要加密的文件）</span>   BMP<span class="layui-word-aux">（源文件需要加密到的 BMP 位图，可不上传）</span>
+    2：选择好两张图片后点击上传，正常情况下会返回一张 BMP 图片， 里面加密了源文件
+    3：这时候只要留着返回的 BMP 位图就可以了，源文件可以不用了
+    4：如果需要源文件的时候， 只需在解密选择上传文件， 正常情况下就会返回源文件
+</pre>
+
+    <fieldset class="layui-elem-field">
+        <legend class="section">加密</legend>
+        <div class="layui-field-box">
+            <form action="encryptFile.php" method="post" enctype="multipart/form-data">
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    <label class="upload_file" for="encrypt_file">
+                        <i class="layui-icon">&#xe61f;</i>
+                        1：(需要加密的文件) 
+                    </label>
+                    <label id="label_encrypt">
+                        <i class="layui-icon">&#xe64c;</i>
+                        <span id="encrypt_notes">src</span>
+                    </label>
+                    <input type="file" name="encrypt_file" id="encrypt_file" />
+                </blockquote>
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    <label class="upload_file"  for="bmp_file">
+                        <i class="layui-icon">&#xe61f;</i>
+                        2：位图文件(可省略) 
+                    </label>
+                    <label id="label_bmp">
+                        <i class="layui-icon">&#xe64c;</i>
+                        <span id="bmp_notes">2:) 加密到的位图文件(可省略) </span>
+                    </label>
+                    <input type="file" accept="image/bmp" name="bmp_file" id="bmp_file" />
+                </blockquote>
+                <input type="submit" value="加密" class="layui-btn layui-btn-big layui-btn-normal" />
+            </form>
+        </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field">
+        <legend class="section">解密</legend>
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <legend>选择好文件之后会后台自动上传解密</legend>
+        </fieldset>
+        <div class="layui-field-box">
+            <blockquote class="layui-elem-quote layui-quote-nm">
+                <form action="decryptFile.php" method="post" enctype="multipart/form-data" id="decrypt_form">
+                    <label for="decrypt_file" class="upload_file">
+                        <i class="layui-icon">&#xe64c;</i>
+                        <span id="decrypt_notes"> BMP 位图 </span>
+                    </label>
+                    <input type="file" accept="image/bmp" name="decrypt_file" id="decrypt_file" />
+                </form>
+            </blockquote>
+        </div>
+    </fieldset>
+
+
+    <!-- 加密文件 -->
+    <script>
+        // 加密文件选择
+        $("#encrypt_file").change(function(){
+
+            // 显示区块
+            $("#label_encrypt").css({"display":"inline-block"});
+            // 显示路径
+            $("#encrypt_notes").text($(this).val());
+        });
+
+        // bmp 位图选择
+        $("#bmp_file").change(function(){
+
+            // 显示区块
+            $("#label_bmp").css({"display":"inline-block"});
+            // 显示路径
+            $("#bmp_notes").text($(this).val());
+        });
+    </script>
+
+    <!-- 解密文件 -->
+    <script>
+        $("#decrypt_file").change(function(){
+            $("#decrypt_form").submit();
+        });
+    </script>
+</body>
+</html>
