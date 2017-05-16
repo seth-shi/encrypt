@@ -1,42 +1,66 @@
 <?php
 
-    /**
-     * 加密文件到 BMP 位图中
-     */
+
     class Encrypt
     {
-        // 文件名
+        /**
+         * 文件名
+         * @var [string]
+         */
         private $file_name;
-        // 文件名字长度 ==== 如果不够 4 个字节长度 ==> 将会填充成 4 个字节
+        /**
+         * 文件名字长度 ==== 如果不够 4 个字节长度 ==> 将会填充成 4 个字节
+         * @var [string | int]
+         */
         private $file_name_length;
-        // 文件数据长度 ==== 如果不够 8 个字节长度 ==> 将会填充成 8 个字节 
+        /**
+         * 文件数据长度 ==== 如果不够 8 个字节长度 ==> 将会填充成 8 个字节 
+         * @var [string]
+         */
         private $file_data;
-        // 文件数据的长度
+        /**
+         * 文件数据的长度
+         * @var [string | int]
+         */
         private $file_data_length;
 
-        // 文件指针
-        private $pf;
 
-
-        // 错误号
+        /**
+         * 错误号
+         * @var [int]
+         */
         private $errno;
-        // 错误消息
+        /**
+         * 错误消息
+         * @var [string]
+         */
         private $errmsg;
 
 
 
-        // 需要加密或者解密的文件
+        /**
+         * 初始化错误
+         */
         public function __construct()
         {
+            // 初始化四个文件变量
+            $this->file_name = "";
+            $this->file_name_length = "";
+            $this->file_data = "";
+            $this->file_data_length = "";
 
+            // 0 代表没有错误
+            $this->errno = 0;
+            $this->errmsg = "没有错误~";
         }
 
 
         /**
-         * 加密文件
-         * @param $path             加密文件， 绝对路径
-         * @param $bmp              bmp 要加密到的图片文件 绝对路径
-         * @param string $new_name  加密出来的文件，需要 bmp 文件
+         * 加密文件 -> 核心方法
+         * 
+         * @param $path             加密文件( 绝对路径 )
+         * @param $bmp              位图路径( 绝对路径 )
+         * @param string $new_name  加密出来的文件 ( *.bmp )
          * @return bool
          */
         public function encryptFile($path, $bmp, $new_name = 'gps.bmp')
@@ -71,7 +95,7 @@
             $pf = fopen($bmp, 'rb');
 
             // 一次性读取完文件头信息 无法写入数据区域
-            $data = fread($pf, $offset);
+            $encrypt_img = fread($pf, $offset);
             
             // 获取格式化文件信息  第一个是文件信息长度， 第二个是文件内容
             list($length, $content) = $this->getFormatFileInfo();
@@ -96,7 +120,7 @@
                     $encrypt = $alpha;
                 }
 
-                $data .= $red . $green . $blue . $encrypt;
+                $encrypt_img .= $red . $green . $blue . $encrypt;
 
             }
 
@@ -112,7 +136,7 @@
             }
 
             // 把内容写成新图片
-            if (file_put_contents($new_name, $data))
+            if (file_put_contents($new_name, $encrypt_img))
             {
                 return true;
             }
@@ -126,9 +150,9 @@
         }
 
         /**
-         * 获取文件信息
-         * @param $path
-         * @return string
+         * 初始化文件信息
+         * 
+         * @param $path     文件路径 ( 绝对路径 )
          */
         private function initFileInfo($path)
         {
@@ -144,15 +168,17 @@
             $this->file_data_length = str_pad(strlen($this->file_data), 8, '0', STR_PAD_LEFT);
         }
 
-        // 获取格式化的文件信息
+        /**
+         * 获取格式化后的文件信息
+         * 
+         * @return array [0] => 文件存储大小  [1] => 文件内容
+         */
         private function getFormatFileInfo()
         {
             $info = [];
             // 先确定需要存储多大的内存存储
             // 文件名字=4 + 文件数据=8 + $this->file_name_length + $this->file_data_length
             $info[] = 4 + 8 + intval($this->file_name_length) + intval($this->file_data_length);
-
-
 
             // 数据信息  和上面的 大小一一对应
             $info[] = $this->file_name_length . $this->file_data_length . $this->file_name . $this->file_data;
@@ -162,9 +188,10 @@
 
 
         /**
-         * 解密文件
-         * @param  [type] $bmp [description]
-         * @return [type]      [description]
+         * 解密文件 -> 核心方法
+         * 
+         * @param  $bmp 位图路径( 绝对路径 )
+         * @return bool
          */
         public function decryptFile($bmp)
         {
@@ -183,15 +210,9 @@
             // 读出与内容无关的信息
             fread($pf, $offset);
 
-            // 文件内容
-            $data['file_name_length'] = "";
-            $data['file_data_length'] = "";
-            $data['file_name'] = "";
-            $data['file_data'] = "";
-            // 内容长度
-            // $length = 1000;
 
-            for ($i = 0; !feof($pf); ++$i)
+            // 读取位图中的加密信息
+            for ($i = 1; !feof($pf); ++$i)
             {
                 // 3 个字节代表一个像素
                 $red   = fread($pf, 1);
@@ -200,21 +221,27 @@
                 $alpha = fread($pf, 1);
 
                 
-                if ($i < 4)
+                if ($i <= 4)
                 {
-                     $data['file_name_length'] .= $alpha;
+                    // 1 ~ 4 四个字节    是文件名长度数据
+                    $this->file_name_length .= $alpha;
+                    
                 }
-                elseif ($i < 12)
+                elseif ($i <= 12)
                 {
-                    $data['file_data_length'] .= $alpha;
+                    // 5 ~ 12 八个字节    是文件数据长度
+                    $this->file_data_length .= $alpha;
+
                 }
-                elseif ($i < (12 + $data['file_name_length']))
+                elseif ($i <= (12 + $this->file_name_length))
                 {
-                    $data['file_name'] .= $alpha;
+                    // 13 ~ $this->file_name_length  是文件名
+                    $this->file_name .= $alpha;
                 }
-                elseif ($i < (12 + $data['file_name_length'] + $data['file_data_length']))
+                elseif ($i <= (12 + $this->file_name_length + $this->file_data_length))
                 {
-                    $data['file_data'] .= $alpha;
+                    // (12 + $this->file_name_length) ~ $this->file_data_length 是文件数据
+                    $this->file_data .= $alpha;
                 }
                 else
                 {
@@ -224,20 +251,29 @@
             }
 
             // 文件名
-            $data['file_name'] = base64_decode($data['file_name']);
+            $this->file_name = base64_decode($this->file_name);
        
-            file_put_contents($data['file_name'], $data['file_data']);
+            // 写入新文件
+            if (file_put_contents($this->file_name, $this->file_data))
+            {
+                return true;
+            }
+            else
+            {
+                $this->errno = -2;
 
-            return true;
+                return false;
+            }
+            
         }
 
         /**
-         * 参数必须是 bmp 文件
          * 得到位图阵列相对于文件头的偏移
-         * @param string $filename
-         * @return string
+         * 
+         * @param string    位图文件 ( 绝对路径 )
+         * @return int
          */
-        private function getOffsetPoint($filename = "bmp.bmp")
+        private function getOffsetPoint($filename)
         {
             $pf = fopen($filename, 'rb');
 
@@ -264,6 +300,7 @@
 
         /**
          * 获取错误信息
+         *
          * @return string
          */
         public function getErrorMsg()
@@ -280,11 +317,15 @@
         {
             switch ($this->errno)
             {
+                // 解密错误
                 case -1:
                     $this->errmsg = "要解密的 BMP 文件不存在";
                     break;
+                case -2:
+                    $this->errmsg = "生成数据文件失败";
+                    break;
 
-
+                // 加密错误
                 case 1:
                     $this->errmsg = "加密到的 BMP 图片不存在";
                     break;
