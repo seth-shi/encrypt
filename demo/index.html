@@ -156,6 +156,7 @@
     4：如果需要源文件的时候， 只需在解密选择上传文件， 正常情况下就会返回源文件
 </pre>
 
+
     <fieldset class="layui-elem-field">
         <legend class="section">加密</legend>
         <div class="layui-field-box">
@@ -204,6 +205,14 @@
             </blockquote>
         </div>
     </fieldset>
+
+    <pre class="layui-code" style="font-size: 18px; line-height: 30px;">
+    重要的事情说三遍~~~
+    加密后的文件不会变大 1 个字节， 如果有的朋友上传了一个 1 kb 的文件，为什么加密后的是 2M 多的位图回来给我？
+    因为你没有选择 BMP 文件，所以会返回服务器上默认的一张位图给你，
+    如果你上传了位图，他就会返回你上传的那张给你（注意！这个图片实际上你看大小，查看图片不能看出任何变化，但是实际上已经把源文件写入位图中了）
+    解密的时候把返回的位图拿去解密，他就可以还原出来你的原文件
+</pre>
 
 
     <!-- 加密文件 -->
