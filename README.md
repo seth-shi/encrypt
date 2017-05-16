@@ -4,7 +4,6 @@
 [demo 演示地址](http://encrypt.shiguopeng.cn)
 
 ## 理论上可以加密 位图大小的 1/4,实际上会小一点
-# 加密后的文件不会变大一个字节
 
 ### Encrypt 说明
 ```php
