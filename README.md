@@ -2,7 +2,7 @@
 ===================================  
  ![gps](https://avatars0.githubusercontent.com/u/28035971?v=3&s=460 "gps")  
 
-[demo 演示地址](http://encrypt.shiguopeng.cn)
+#[demo 演示地址](http://encrypt.shiguopeng.cn)
 
 ### Encrypt 说明
 ```php
@@ -20,11 +20,10 @@
 ```
 
 ### 加密说明
-> 把上面的代码复制到 index.php, 运行 index.php <br />
-> 在 index.php 同级目录将会多出一个 gps.bmp ( encryptFile() 参数三是新文件名 ) 文件<br />
-> 新生成的 gps.bmp 就是已经将加密内容加密进去的加密位图<br />
-
-
+>1.把上面的代码复制到 **index.php**, 运行 **index.php** <br />
+>2.在 **index.php** 同级目录将会多出一个 **gps.bmp** ( `encryptFile()` 参数三是新文件名 ) 文件<br />
+>3.新生成的 **gps.bmp** 就是已经将加密内容加密进去的加密位图<br />
+---
 ### 解密说明
-> 注释掉加密文件的两行代码, 运行 index.php <br />
-> 在 index.php 同级目录将会多出一个文件, 就是之前的加密文件, 保留文件名, 格式, 数据<br />
+>1.注释掉加密文件的两行代码, 运行 index.php <br />
+>2.在 index.php 同级目录将会多出一个文件, 就是之前的加密文件, 保留文件名, 格式, 数据<br />
