@@ -27,7 +27,7 @@
 
 
     // bmp 位图是否上传
-    if ($bmp_file['error'])
+    if ($bmp_file['error'] == 0)
     {
         $bmp_path = $bmp_file['tmp_name'];
         $new_name = $encrypt_file['name'];
