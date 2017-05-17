@@ -181,7 +181,7 @@
                         <i class="layui-icon">&#xe64c;</i>
                         <span id="bmp_notes">2:) 加密到的位图文件(可省略) </span>
                     </label>
-                    <input type="file" accept="image/x-ms-bmp, image/png" name="bmp_file" id="bmp_file" />
+                    <input type="file" accept="image/bmp, image/png" name="bmp_file" id="bmp_file" />
                 </blockquote>
                 <input type="submit" value="加密" class="layui-btn layui-btn-big layui-btn-normal" />
             </form>
@@ -198,9 +198,9 @@
                 <form action="decryptFile.php" method="post" enctype="multipart/form-data" id="decrypt_form">
                     <label for="decrypt_file" class="upload_file">
                         <i class="layui-icon">&#xe64c;</i>
-                        <span id="decrypt_notes"> 加密的图片文件 </span>
+                        <span id="decrypt_notes"> 加密后的图片文件 </span>
                     </label>
-                    <input type="file" accept="image/x-ms-bmp" name="decrypt_file" id="decrypt_file" />
+                    <input type="file" accept="image/bmp, image/png" name="decrypt_file" id="decrypt_file" />
                 </form>
             </blockquote>
         </div>
