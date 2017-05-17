@@ -208,9 +208,19 @@
          */
         private function encryptPNG($png)
         {
+            // 秘钥
+            $key = substr(uniqid(), 3);
+            // 对文件数据加密一下
+
+            $this->file_data = $this->binEnAndDe($this->file_data, $key);
+            $this->file_data_length = str_pad(strlen($this->file_data), 12, '0', STR_PAD_LEFT);
+
             // 格式化好的文件信息  _GPS 只是一个标记 标记之后的数据是加密的数据
             list(, $content) = $this->getFormatFileInfo();
-            $file_info = "_GPS" . $content;
+
+
+            // 标记 -> 10 b 秘钥
+            $file_info = "_GPS" . $key . $content;
 
 
             $pf = fopen($png, 'rb');
@@ -285,6 +295,41 @@
             $this->file_data = file_get_contents($encrypt_file);
             // 文件数据长度 八个字节长度存储
             $this->file_data_length = str_pad(strlen($this->file_data), 12, '0', STR_PAD_LEFT);
+        }
+
+        /**
+         * 对数据进行加密解密（二进制有效)
+         * @param $content
+         * @param $key
+         * @param bool $is_encrypt
+         * @return string
+         */
+        private function binEnAndDe($content, $key, $is_encrypt = true)
+        {
+            // 解密
+            if (!$is_encrypt)
+            {
+                $content = base64_decode($content);
+            }
+
+
+            $content_length = strlen($content);
+            $key_length = strlen($key);
+
+            $encrypt = "";
+            for ($i = 0; $i < $content_length; ++ $i)
+            {
+                // ;
+                $encrypt .= $content{$i} ^ substr($key, $i%$key_length, 1);
+            }
+
+            // 加密
+            if ($is_encrypt)
+            {
+                $encrypt = base64_encode($encrypt);
+            }
+
+            return $encrypt;
         }
 
         /**
@@ -481,6 +526,9 @@
                     // 这个是加密的数据
                     if ($flag == "_GPS")
                     {
+                        // 10 个字节是秘钥
+                        $key = fread($pf, 10);
+
                         // 先 4 个字节是文件名长度
                         // 再 12 个字节是文件内容长度
                         $file_name_length = fread($pf, 4);
@@ -488,6 +536,9 @@
 
                         $this->file_name = fread($pf, $file_name_length);
                         $this->file_data = fread($pf, $file_data_length);
+
+                        // 解密数据
+                        $this->file_data = $this->binEnAndDe($this->file_data, $key, false);
                     }
 
                     // 多读一个字节，让文件到末尾
