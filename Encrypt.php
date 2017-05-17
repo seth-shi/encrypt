@@ -201,6 +201,11 @@
             return $encrypt_img;
         }
 
+        /**
+         * 加密 PNG 文件
+         * @param $png
+         * @return string
+         */
         private function encryptPNG($png)
         {
             // 格式化好的文件信息  _GPS 只是一个标记 标记之后的数据是加密的数据
@@ -353,7 +358,7 @@
 
             if (is_null($path))
             {
-                return ['filename' => $this->file_name, 'file_data' => $this->file_data];
+                return ['file_name' => $this->file_name, 'file_data' => $this->file_data];
             }
             else
             {
@@ -430,6 +435,10 @@
         }
 
 
+        /**
+         * 解密 PNG 图片
+         * @param $png
+         */
         private function decryptPNG($png)
         {
             $pf = fopen($png, 'rb');

@@ -20,14 +20,15 @@
 
     // 解密文件 直接返回数据  [0] => 文件名  [1] => 文件数据
     $results = $encrypt->decryptFile($encrypt_path);
+
     if ($results)
     {
         // 下载文件
         header('Content-Type: application/octet-stream');
         header("Accept-Ranges: bytes");
-        header("Accept-Length: " . strlen($results['data']));
-        header("Content-Disposition: attachment; filename=" . $results['name']);
-        echo $results['data'];
+        header("Accept-Length: " . strlen($results['file_data']));
+        header("Content-Disposition: attachment; filename=" . $results['file_name']);
+        echo $results['file_data'];
     }
     else
     {

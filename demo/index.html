@@ -75,7 +75,7 @@
                 display: none;
             }
         }
-        @media screen and (max-width: 530px) {
+        @media screen and (max-width: 550px) {
             #big_screen {
                 display: none;
             }
@@ -104,25 +104,25 @@
 +--------------+                    +-------------+                       +--------------+
 |              |                    |             |                       |              |
 |    源文件     |     　加 密　       |             |   　　  解　密　　　　　 |              |
-|              | -----------------> |     BMP     | ------------------->  |    源文件     |
-|     BMP      |                    |             |                       |              |
+|      +       | -----------------> |   BMP/PNG   | ------------------->  |    源文件     |
+|   BMP/PNG    |                    |             |                       |              |
 |              |                    |             |                       |              |
 +--------------+                    +-------------+                       +--------------+
 </pre>
 <pre id="middle_screen"  class="layui-code" style="text-align: center; line-height: 14px;">
-+--------+             +---------+                +-----------+
-|        |             |         |                |           |
-| 源文件  |   加　密     |         |    解　密　     |           |
-|        | ----------> |   BMP   | ------------>  |   源文件   |
-|  BMP   |             |         |                |           |
-|        |             |         |                |           |
-+--------+             +---------+                +-----------+
++---------+             +----------+               +-----------+
+|         |             |         |                |           |
+|  源文件  |   加　密     |         |    解　密　     |           |
+|    +    | ----------> | BMP/PNG | ------------>  |   源文件   |
+| BMP/PNG |             |         |                |           |
+|         |             |         |                |           |
++---------+             +---------+                +-----------+
 </pre>
 <pre id="small_screen"  class="layui-code" style="text-align: center; line-height: 14px;">
 +------------------+
 |                  |
 |      源文件       |
-|                  |
+|        +         |
 |       BMP        |
 |                  |
 +------------------+
@@ -133,7 +133,7 @@
 +------------------+
 |                  |
 |                  |
-|  　　  BMP        |
+|  　　BMP/PNG      |
 |                  |
 |                  |
 +------------------+
@@ -181,7 +181,7 @@
                         <i class="layui-icon">&#xe64c;</i>
                         <span id="bmp_notes">2:) 加密到的位图文件(可省略) </span>
                     </label>
-                    <input type="file" accept="image/bmp" name="bmp_file" id="bmp_file" />
+                    <input type="file" accept="image/x-ms-bmp, image/png" name="bmp_file" id="bmp_file" />
                 </blockquote>
                 <input type="submit" value="加密" class="layui-btn layui-btn-big layui-btn-normal" />
             </form>

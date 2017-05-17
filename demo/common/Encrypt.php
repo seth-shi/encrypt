@@ -57,16 +57,16 @@
 
         /**
          * 加密文件 -> 核心方法
-         * 
-         * @param $path             加密文件( 绝对路径 )
-         * @param $bmp              位图路径( 绝对路径 )
-         * @param string $new_name  加密出来的文件 ( *.bmp )
+         *
+         * @param $encrypt_file     加密文件 ( 绝对路径 )
+         * @param $pic              图片文件（ 暂支持 BMP/PNG ）
+         * @param string $new_name 加密出来的新文件名 （如果不填则返回加密后的数据） ( BMP/PNG )
          * @return bool
          */
-        public function encryptFile($path, $bmp, $new_name = null, $is_return = true)
+        public function encryptFile($encrypt_file, $pic_file, $new_name = null)
         {
             // 文件是否存在
-            if (!is_file($bmp))
+            if (!is_file($pic_file))
             {
                 $this->errno = 1;
 
@@ -74,10 +74,10 @@
             }
 
             // 文件是否存在
-            if (is_file($path))
+            if (is_file($encrypt_file))
             {
                 // 初始化文件信息
-                $this->initFileInfo($path, $new_name);
+                $this->initFileInfo($encrypt_file, $new_name);
             }
             else
             {
@@ -87,6 +87,68 @@
                 return false;
             }
 
+            // 获取文件类型
+            $mime = getimagesize($pic_file);
+            // 是否为图片文件
+            if (!$mime)
+            {
+                $this->errno = 3;
+
+                return false;
+            }
+
+            // 加密不同类型的文件
+            $img_data = "";
+            switch ($mime['mime'])
+            {
+                case "image/png":
+                    $img_data = $this->encryptPNG($pic_file);
+                    break;
+                case "image/x-ms-bmp":
+                    $img_data = $this->encryptBMP($pic_file);
+                    break;
+                default:
+                    $this->errno = 4;
+
+                    return false;
+                    break;
+            }
+
+            // 判断是否生成数据出错
+            if (!$img_data)
+            {
+                return false;
+            }
+
+            // 是否生成新文件
+            if (!is_null($new_name))
+            {
+                return $img_data;
+            }
+            else
+            {
+                // 把内容写成新图片
+                if (file_put_contents($new_name, $img_data))
+                {
+                    return true;
+                }
+                else
+                {
+                    $this->errno = 6;
+
+                    return false;
+                }
+            }
+
+        }
+
+        /**
+         * 加密 BMP 位图
+         * @param $bmp
+         * @return bool|string
+         */
+        private function encryptBMP($bmp)
+        {
 
             // 获取 BMP 文件偏移数据位置
             $offset = $this->getOffsetPoint($bmp);
@@ -96,9 +158,10 @@
 
             // 一次性读取完文件头信息 无法写入数据区域
             $encrypt_img = fread($pf, $offset);
-            
+
             // 获取格式化文件信息  第一个是文件信息长度， 第二个是文件内容
             list($length, $content) = $this->getFormatFileInfo();
+
 
 
             // 把 Alpha 换成加密内容
@@ -130,56 +193,98 @@
             // 加密内容过多
             if ($length > $i)
             {
-                $this->errno = 3;
+                $this->errno = 5;
 
                 return false;
             }
 
-            // 是否直接返回数据
-            if ($is_return)
+            return $encrypt_img;
+        }
+
+        /**
+         * 加密 PNG 文件
+         * @param $png
+         * @return string
+         */
+        private function encryptPNG($png)
+        {
+            // 格式化好的文件信息  _GPS 只是一个标记 标记之后的数据是加密的数据
+            list(, $content) = $this->getFormatFileInfo();
+            $file_info = "_GPS" . $content;
+
+
+            $pf = fopen($png, 'rb');
+
+            // 1：8b -> 文件头信息   第一个字节是 137 超出了 ASCII 字符， 所以显示不正常
+            $png_data = "";
+            $file_head = fread($pf, 8);
+            $png_data .= $file_head;
+
+
+            while (!feof($pf))
             {
-                return $encrypt_img;
-            }
-            else
-            {
-                if (file_put_contents($new_name, $encrypt_img))
+                // 2: 数据块长度
+                $chunk_length = fread($pf, 4);
+                $png_data .= $chunk_length;
+                $chunk_length = unpack('N', $chunk_length)[1];
+
+                // 数据块类型
+                $chunk_type_code = fread($pf, 4);
+                $png_data .= $chunk_type_code;
+
+
+                // 是否是文件末尾
+                if ($chunk_type_code != "IEND")
                 {
-                    return true;
+                    // 3: 6b -> PLTE
+                    $chunk_data = fread($pf, $chunk_length);
+                    $png_data .= $chunk_data;
+
+                    // crc 数据块结尾标记
+                    $crc = fread($pf, 4);
+                    $png_data .= $crc;
                 }
                 else
                 {
-                    $this->errno = 4;
+                    // 多写几个数据看看
+                    $png_data .= $file_info;
 
-                    return false;
+                    // 多读一个字节，让文件到末尾
+                    $crc = fread($pf, 5);
+                    $png_data .= $crc;
+
+                    if (!feof($pf))
+                    {
+                        $this->errno = -4;
+
+                        return false;
+                    }
                 }
+
             }
-            
+            fclose($pf);
+
+            return $png_data;
         }
+
 
         /**
          * 初始化文件信息
          * 
-         * @param $path     文件路径 ( 绝对路径 )
+         * @param $encrypt_file     文件路径 ( 绝对路径 )
          */
-        private function initFileInfo($path, $new_name)
+        private function initFileInfo($encrypt_file, $new_name)
         {
-            if (!is_null($new_name))
-            {
-                $file = $new_name;
-            }
-            else
-            {
-                $file = basename($path);
-            }
+            $file = basename($new_name);
 
             // base64 加密后的文件名
             $this->file_name = base64_encode($file);
             // 文件名字长度 四个字节长度存储
             $this->file_name_length = str_pad(strlen($this->file_name), 4, '0', STR_PAD_LEFT);
             // 把文件信息添加到文件内容前面
-            $this->file_data = file_get_contents($path);
+            $this->file_data = file_get_contents($encrypt_file);
             // 文件数据长度 八个字节长度存储
-            $this->file_data_length = str_pad(strlen($this->file_data), 8, '0', STR_PAD_LEFT);
+            $this->file_data_length = str_pad(strlen($this->file_data), 12, '0', STR_PAD_LEFT);
         }
 
         /**
@@ -192,7 +297,7 @@
             $info = [];
             // 先确定需要存储多大的内存存储
             // 文件名字=4 + 文件数据=8 + $this->file_name_length + $this->file_data_length
-            $info[] = 4 + 8 + intval($this->file_name_length) + intval($this->file_data_length);
+            $info[] = 4 + 12 + intval($this->file_name_length) + intval($this->file_data_length);
 
             // 数据信息  和上面的 大小一一对应
             $info[] = $this->file_name_length . $this->file_data_length . $this->file_name . $this->file_data;
@@ -204,20 +309,90 @@
         /**
          * 解密文件 -> 核心方法
          *
-         * @param  $bmp 位图路径( 绝对路径 )
-         * @param bool $is_return
+         * @param $pic_file   解密的图片
          * @return bool
          */
-        public function decryptFile($bmp, $is_return = true)
+        public function decryptFile($pic_file, $path = null)
         {
             // 文件是否存在
-            if (!is_file($bmp))
+            if (!is_file($pic_file))
             {
                 $this->errno = -1;
 
                 return false;
             }
 
+
+            // 获取文件类型
+            $mime = getimagesize($pic_file);
+            // 是否为图片文件
+            if (!$mime)
+            {
+                $this->errno = 3;
+
+                return false;
+            }
+
+            // 加密不同类型的文件
+            $img_data = "";
+            switch ($mime['mime'])
+            {
+                case "image/png":
+                    $img_data = $this->decryptPNG($pic_file);
+                    break;
+                case "image/x-ms-bmp":
+                    $img_data = $this->decryptBMP($pic_file);
+                    break;
+                default:
+                    $this->errno = 4;
+
+                    return false;
+                    break;
+            }
+
+
+            if ($this->file_name == "" || $this->file_data == "")
+            {
+                $this->errno = -3;
+
+                return false;
+            }
+
+
+            // 文件名
+            $this->file_name = base64_decode($this->file_name);
+
+
+            if (is_null($path))
+            {
+                return ['file_name' => $this->file_name, 'file_data' => $this->file_data];
+            }
+            else
+            {
+                $path = trim($path, "/\\");
+
+                // 写入新文件
+                if (file_put_contents($path . "/" . $this->file_name, $this->file_data))
+                {
+                    return true;
+                }
+                else
+                {
+                    $this->errno = -2;
+
+                    return false;
+                }
+            }
+
+            
+        }
+
+        /**
+         * 解密 BMP 文件图
+         * @param $bmp
+         */
+        private function decryptBMP($bmp)
+        {
             // 获取文件偏移数据位置
             $offset = $this->getOffsetPoint($bmp);
 
@@ -235,27 +410,27 @@
                 $blue  = fread($pf, 1);
                 $alpha = fread($pf, 1);
 
-                
+
                 if ($i <= 4)
                 {
                     // 1 ~ 4 四个字节    是文件名长度数据
                     $this->file_name_length .= $alpha;
-                    
+
                 }
-                elseif ($i <= 12)
+                elseif ($i <= 16)
                 {
-                    // 5 ~ 12 八个字节    是文件数据长度
+                    // 5 ~ 16 八个字节    是文件数据长度
                     $this->file_data_length .= $alpha;
 
                 }
-                elseif ($i <= (12 + $this->file_name_length))
+                elseif ($i <= (16 + $this->file_name_length))
                 {
-                    // 13 ~ $this->file_name_length  是文件名
+                    // 16 ~ $this->file_name_length  是文件名
                     $this->file_name .= $alpha;
                 }
-                elseif ($i <= (12 + $this->file_name_length + $this->file_data_length))
+                elseif ($i <= (16 + $this->file_name_length + $this->file_data_length))
                 {
-                    // (12 + $this->file_name_length) ~ $this->file_data_length 是文件数据
+                    // (16 + $this->file_name_length) ~ $this->file_data_length 是文件数据
                     $this->file_data .= $alpha;
                 }
                 else
@@ -264,34 +439,64 @@
                 }
 
             }
-
-            // 文件名
-            $this->file_name = base64_decode($this->file_name);
+        }
 
 
-            // 直接返回数据
-            if ($is_return)
+        /**
+         * 解密 PNG 图片
+         * @param $png
+         */
+        private function decryptPNG($png)
+        {
+            $pf = fopen($png, 'rb');
+
+            // 1：8b -> 文件头信息   第一个字节是 137 超出了 ASCII 字符， 所以显示不正常
+            $file_head = fread($pf, 8);
+
+            while (!feof($pf))
             {
-                $data['name'] = $this->file_name;
-                $data['data'] = $this->file_data;
+                // 2: 数据块长度
+                $chunk_length = fread($pf, 4);
 
-                return $data;
-            }
-            else
-            {
-                // 写入新文件
-                if (file_put_contents($this->file_name, $this->file_data))
+                $chunk_length = unpack('N', $chunk_length)[1];
+
+                // 数据块类型
+                $chunk_type_code = fread($pf, 4);
+
+
+
+                // 是否是文件末尾
+                if ($chunk_type_code != "IEND")
                 {
-                    return true;
+                    // 3: 6b -> PLTE
+                    $chunk_data = fread($pf, $chunk_length);
+                    // crc
+                    $crc = fread($pf, 4);
                 }
                 else
                 {
-                    $this->errno = -2;
+                    // 标识
+                    $flag = fread($pf, 4);
 
-                    return false;
+                    // 这个是加密的数据
+                    if ($flag == "_GPS")
+                    {
+                        // 先 4 个字节是文件名长度
+                        // 再 12 个字节是文件内容长度
+                        $file_name_length = fread($pf, 4);
+                        $file_data_length = fread($pf, 12);
+
+                        $this->file_name = fread($pf, $file_name_length);
+                        $this->file_data = fread($pf, $file_data_length);
+                    }
+
+                    // 多读一个字节，让文件到末尾
+                    $crc = fread($pf, 5);
                 }
-            }
 
+
+            }
+            fclose($pf);
         }
 
         /**
@@ -346,10 +551,16 @@
             {
                 // 解密错误
                 case -1:
-                    $this->errmsg = "要解密的 BMP 文件不存在";
+                    $this->errmsg = "要解密的图片文件不存在";
                     break;
                 case -2:
                     $this->errmsg = "生成数据文件失败";
+                    break;
+                case -3:
+                    $this->errmsg = "解密数据出错";
+                    break;
+                case -4:
+                    $this->errmsg = "文件已被加密过";
                     break;
 
                 // 加密错误
@@ -360,9 +571,15 @@
                     $this->errmsg = "要加密的文件不存在";
                     break;
                 case 3:
-                    $this->errmsg = "需要加密的文件过大";
+                    $this->errmsg = "不是有效的图片文件";
                     break;
                 case 4:
+                    $this->errmsg = "不支持该文件类型";
+                    break;
+                case 5:
+                    $this->errmsg = "需要加密的文件过大";
+                    break;
+                case 6:
                     $this->errmsg = "生成 BMP 文件错误";
                 default:
                     $this->errmsg = "未知错误";
