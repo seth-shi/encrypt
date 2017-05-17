@@ -4,6 +4,7 @@
 [demo 演示地址](http://encrypt.shiguopeng.cn)
 
 ## 理论上可以加密 位图大小的 1/4,实际上会小一点
+## 增加了 PNG 图片的支持， PNG 图片加密无限制大小
 
 ### Encrypt 说明
 ```php
@@ -11,12 +12,12 @@
    require 'Encrypt.php';
 
    $encrypt = new Encrypt();
-   // 加密文件 ===> 解密的时候注释掉下面两行
-   $encrypt->encryptFile('data/data.txt', 'data/bg.bmp') or die($encrypt->getErrorMsg());
+   // 加密文件 ===> 解密的时候注释掉下面两行  参数三是生成新文件, (如果不填则返回加密后的数据二进制流)
+   $encrypt->encryptFile('data/data.txt', 'data/bg.bmp', 'gps.bmp') or die($encrypt->getErrorMsg());
    exit('加密成功');
 
-   // 解密文件
-   $encrypt->decryptFile('gps.bmp') or die($encrypt->getErrorMsg());
+   // 解密文件  参数一是需要解密的文件， 参数二是路径,不要写文件名，因为会自动保留文件名(如果不填则返回加密后的数据二进制流)
+   $encrypt->decryptFile('gps.bmp', './') or die($encrypt->getErrorMsg());
    exit('解密成功');
 ```
 
