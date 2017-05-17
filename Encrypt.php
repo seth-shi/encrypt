@@ -58,12 +58,12 @@
         /**
          * 加密文件 -> 核心方法
          * 
-         * @param $path             加密文件( 绝对路径 )
+         * @param $encrypt_file     加密文件( 绝对路径 )
          * @param $bmp              位图路径( 绝对路径 )
          * @param string $new_name  加密出来的文件 ( *.bmp )
          * @return bool
          */
-        public function encryptFile($path, $bmp, $new_name = 'gps.bmp')
+        public function encryptFile($encrypt_file, $bmp, $new_name = 'gps.bmp')
         {
             // 文件是否存在
             if (!is_file($bmp))
@@ -74,10 +74,10 @@
             }
 
             // 文件是否存在
-            if (is_file($path))
+            if (is_file($encrypt_file))
             {
                 // 初始化文件信息
-                $this->initFileInfo($path);
+                $this->initFileInfo($encrypt_file);
             }
             else
             {
@@ -152,18 +152,18 @@
         /**
          * 初始化文件信息
          * 
-         * @param $path     文件路径 ( 绝对路径 )
+         * @param $encrypt_file     文件路径 ( 绝对路径 )
          */
-        private function initFileInfo($path)
+        private function initFileInfo($encrypt_file)
         {
-            $file = basename($path);
+            $file = basename($encrypt_file);
 
             // base64 加密后的文件名
             $this->file_name = base64_encode($file);
             // 文件名字长度 四个字节长度存储
             $this->file_name_length = str_pad(strlen($this->file_name), 4, '0', STR_PAD_LEFT);
             // 把文件信息添加到文件内容前面
-            $this->file_data = file_get_contents($path);
+            $this->file_data = file_get_contents($encrypt_file);
             // 文件数据长度 八个字节长度存储
             $this->file_data_length = str_pad(strlen($this->file_data), 8, '0', STR_PAD_LEFT);
         }
