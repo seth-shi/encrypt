@@ -1,4 +1,4 @@
- WaitMoonMan/Encrypt
+ Encrypt
 ===================================
 
 [demo 演示地址](http://encrypt.shiguopeng.cn)
