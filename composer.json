@@ -1,0 +1,15 @@
+{
+    "name": "davidnineroc/encrypt",
+    "authors": [
+        {
+            "name": "DavidNineRoc",
+            "email": "1033404553@qq.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "DavidNineRoc\\Encrypt\\": "src/"
+        }
+    }
+}
