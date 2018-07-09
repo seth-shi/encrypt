@@ -2,19 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1c5e396f-6390-4f98-b5d7-1703becd45fd" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/DavidNineRoc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Handler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/aa.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Encrypt.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/bg.bmp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/bg.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/common/Encrypt.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/common/function.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/data/gps.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/data/gps.bmp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/functions.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/BMP.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/decryptFile.php" beforeDir="false" afterPath="$PROJECT_DIR$/demo/decryptFile.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/encryptFile.php" beforeDir="false" afterPath="$PROJECT_DIR$/demo/encryptFile.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Foundation/FileSystem.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Foundation/FileSystem.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Handler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Handler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/aa.php" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -25,34 +20,43 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Handler.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Handler.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Handler.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="80" column="42" selection-start-line="80" selection-start-column="42" selection-end-line="80" selection-end-column="42" />
+            <state relative-caret-position="258">
+              <caret line="58" lean-forward="true" selection-start-line="58" selection-end-line="58" />
               <folding>
-                <element signature="e#41#100#0#PHP" expanded="true" />
+                <element signature="e#41#90#0#PHP" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="encryptFile.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/demo/encryptFile.php">
+      <file leaf-file-name="decryptFile.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/demo/decryptFile.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="29" column="29" selection-start-line="29" selection-start-column="29" selection-end-line="29" selection-end-column="29" />
+            <state relative-caret-position="162">
+              <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FileSystem.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Foundation/FileSystem.php">
+      <file leaf-file-name="encryptFile.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/demo/encryptFile.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="114" column="23" selection-start-line="114" selection-start-column="23" selection-end-line="114" selection-end-column="23" />
+            <state relative-caret-position="324">
+              <caret line="41" column="3" selection-start-line="41" selection-start-column="3" selection-end-line="41" selection-end-column="3" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="functions.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/demo/functions.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="45" column="1" selection-start-line="45" selection-start-column="1" selection-end-line="45" selection-end-column="1" />
               <folding>
-                <element signature="e#51#63#0#PHP" expanded="true" />
+                <element signature="n#getErrorMsg#0;n#!!top" />
               </folding>
             </state>
           </provider>
@@ -67,6 +71,7 @@
       <find>$encrypt_file</find>
       <find>$bmp_file</find>
       <find>exif_imagetype</find>
+      <find>throw</find>
     </findStrings>
     <replaceStrings>
       <replace>$encryptFile</replace>
@@ -88,11 +93,18 @@
         <option value="$PROJECT_DIR$/src/Encrypt.php" />
         <option value="$PROJECT_DIR$/src/Encryption.php" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/aa.php" />
         <option value="$PROJECT_DIR$/demo/common/function.php" />
-        <option value="$PROJECT_DIR$/demo/encryptFile.php" />
+        <option value="$PROJECT_DIR$/src/aa.php" />
+        <option value="$PROJECT_DIR$/a.php" />
+        <option value="$PROJECT_DIR$/src/Exceptions/DirNonExistsException.php" />
+        <option value="$PROJECT_DIR$/src/Exceptions/DirException.php" />
+        <option value="$PROJECT_DIR$/demo/functions.php" />
+        <option value="$PROJECT_DIR$/src/File.php" />
+        <option value="$PROJECT_DIR$/demo/decryptFile.php" />
         <option value="$PROJECT_DIR$/src/Foundation/FileSystem.php" />
+        <option value="$PROJECT_DIR$/src/BMP.php" />
         <option value="$PROJECT_DIR$/src/Handler.php" />
+        <option value="$PROJECT_DIR$/demo/encryptFile.php" />
       </list>
     </option>
   </component>
@@ -129,29 +141,12 @@
             <path>
               <item name="encrypt" type="b2602c69:ProjectViewProjectNode" />
               <item name="encrypt" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="data" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="encrypt" type="b2602c69:ProjectViewProjectNode" />
-              <item name="encrypt" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="demo" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="encrypt" type="b2602c69:ProjectViewProjectNode" />
               <item name="encrypt" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="encrypt" type="b2602c69:ProjectViewProjectNode" />
-              <item name="encrypt" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="Exceptions" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="encrypt" type="b2602c69:ProjectViewProjectNode" />
-              <item name="encrypt" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="Foundation" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
           </expand>
           <select />
@@ -200,12 +195,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1531099639203</updated>
-      <workItem from="1531099640664" duration="9744000" />
+      <workItem from="1531099640664" duration="14525000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9744000" />
+    <option name="totallyTimeSpent" value="14525000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -319,13 +314,6 @@
     <entry file="file://$PROJECT_DIR$/data/gps.bmp">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/aa.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="28" column="29" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Encryption.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
@@ -333,30 +321,81 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/a.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="23" selection-start-line="2" selection-start-column="23" selection-end-line="2" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Exceptions/DirException.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="18" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aa.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2829">
+          <caret line="73" column="20" lean-forward="true" selection-start-line="73" selection-start-column="20" selection-end-line="73" selection-end-column="20" />
+          <folding>
+            <element signature="e#4539#6032#0#PHP" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo/decryptFile.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo/functions.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="45" column="1" selection-start-line="45" selection-start-column="1" selection-end-line="45" selection-end-column="1" />
+          <folding>
+            <element signature="n#getErrorMsg#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/BMP.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="135" column="32" selection-start-line="135" selection-start-column="32" selection-end-line="135" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Foundation/FileSystem.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="114" column="23" selection-start-line="114" selection-start-column="23" selection-end-line="114" selection-end-column="23" />
+        <state relative-caret-position="396">
+          <caret line="130" column="26" selection-start-line="130" selection-start-column="26" selection-end-line="130" selection-end-column="26" />
           <folding>
             <element signature="e#51#63#0#PHP" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/demo/encryptFile.php">
+    <entry file="file://$PROJECT_DIR$/src/Handler.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="29" column="29" selection-start-line="29" selection-start-column="29" selection-end-line="29" selection-end-column="29" />
+        <state relative-caret-position="258">
+          <caret line="58" lean-forward="true" selection-start-line="58" selection-end-line="58" />
+          <folding>
+            <element signature="e#41#90#0#PHP" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Handler.php">
+    <entry file="file://$PROJECT_DIR$/demo/encryptFile.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="80" column="42" selection-start-line="80" selection-start-column="42" selection-end-line="80" selection-end-column="42" />
-          <folding>
-            <element signature="e#41#100#0#PHP" expanded="true" />
-          </folding>
+        <state relative-caret-position="324">
+          <caret line="41" column="3" selection-start-line="41" selection-start-column="3" selection-end-line="41" selection-end-column="3" />
         </state>
       </provider>
     </entry>

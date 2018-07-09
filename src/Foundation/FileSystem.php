@@ -3,11 +3,19 @@
 namespace DavidNineRoc\Encrypt\Foundation;
 
 use Closure;
+use DavidNineRoc\Encrypt\BMP;
 use DavidNineRoc\Encrypt\Encryption;
 use DavidNineRoc\Encrypt\Exceptions\ReadFileException;
 
 trait FileSystem
 {
+    /**
+     * 此处用于 IDE 识别
+     *
+     * @var $bmp BMP
+     */
+    protected $bmp;
+
     /**
      * 初始化文件信息
      *
@@ -15,27 +23,31 @@ trait FileSystem
      */
      protected function initFileInfo($filePath)
      {
-         $fileName = basename($filePath);
+         $fileName = base64_encode(basename($filePath));
+         $fileData = file_get_contents($filePath);
 
          // base64 加密后的文件名
-         $this->fileName = base64_encode($fileName);
-         $this->fileData = file_get_contents($filePath);
+         $this->bmp->setFileName($fileName)
+                   ->setFileData($fileData)
+                   // 文件名字长度 四个字节长度存储
+                   ->setFileNameSize(
+                       str_pad(
+                           strlen($fileName),
+                           Encryption::FILE_NAME_SIZE_STORAGE_LENGTH,
+                           '0',
+                           STR_PAD_LEFT
+                       )
+                   )
+                   ->setFileDataSize(
+                       str_pad(
+                           strlen($fileData),
+                           Encryption::FILE_DATA_SIZE_STORAGE_LENGTH,
+                           '0',
+                           STR_PAD_LEFT
+                       )
+                   );
 
-         // 文件名字长度 四个字节长度存储
-         $this->fileNameSize = str_pad(
-             strlen($this->fileName),
-             Encryption::FILE_NAME_SIZE_STORAGE_LENGTH,
-             '0',
-             STR_PAD_LEFT
-         );
 
-         // 文件数据长度 八个字节长度存储
-         $this->fileDataSize = str_pad(
-             strlen($this->fileData),
-             Encryption::FILE_DATA_SIZE_STORAGE_LENGTH,
-             '0',
-             STR_PAD_LEFT
-         );
      }
 
     /**
@@ -102,8 +114,8 @@ trait FileSystem
         return (
             Encryption::FILE_NAME_SIZE_STORAGE_LENGTH +
             Encryption::FILE_DATA_SIZE_STORAGE_LENGTH +
-            intval($this->fileName) +
-            intval($this->fileDataSize)
+            intval($this->bmp->getFileNameSize()) +
+            intval($this->bmp->getFileDataSize())
         );
     }
 
@@ -115,10 +127,10 @@ trait FileSystem
     protected function getMemoryContent()
     {
         return (
-            $this->fileNameSize .
-            $this->fileDataSize .
-            $this->fileName .
-            $this->fileData
+            $this->bmp->getFileNameSize() .
+            $this->bmp->getFileDataSize() .
+            $this->bmp->getFileName() .
+            $this->bmp->getFileData()
         );
     }
  }
