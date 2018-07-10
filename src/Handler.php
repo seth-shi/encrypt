@@ -28,16 +28,35 @@ class Handler
      */
     public function __construct($pictureFile)
     {
+        $this->checkFileType($pictureFile);
+
+        $this->bmp = new BMP($pictureFile);
+    }
+
+    /**
+     * 检查文件类型是否符合
+     *
+     * @param $pictureFile
+     * @throws FileNonExistsException
+     * @throws FileNotBMPException
+     */
+    protected function checkFileType($pictureFile)
+    {
         if (! is_file($pictureFile)) {
             throw new FileNonExistsException("[{$pictureFile}]不是一个有效的文件");
         }
 
-        $type = mime_content_type($pictureFile);
+
+        if (!function_exists('mime_content_type')) {
+            $type = mime_content_type($pictureFile);
+        } else {
+            $type = getimagesize($pictureFile);
+            $type = $type === false ? '' : $type['mime'];
+        }
+
         if (false === strpos($type, 'bmp')) {
             throw new FileNotBMPException("[{$pictureFile}]不是正确的图片类型");
         }
-
-        $this->bmp = new BMP($pictureFile);
     }
 
     /**
@@ -96,6 +115,8 @@ class Handler
 
 
     /**
+     * 解密文件
+     *
      * @param null $path
      * @return bool|BMP
      * @throws DirException
@@ -160,5 +181,4 @@ class Handler
 
         return (bool) file_put_contents($fileName, $this->bmp->getFileData());
     }
-
 }
