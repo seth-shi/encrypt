@@ -31,16 +31,16 @@ try {
     ini_set('memory_limit', '256M');
     // 加密文件
     $encrypt = new \DavidNineRoc\Encrypt\Handler($bmpPath);
-    $bmp = $encrypt->encrypt($encryptFileName);
+    $fileStream = $encrypt->encrypt($encryptFileName);
 
 
     // 下载文件
     header("Content-Type: image/bmp");
     header("Accept-Ranges: bytes");
-    header("Accept-Length: " . $bmp->getDataSize());
+    header("Accept-Length: " . $fileStream->getDataSize());
     header("Content-Disposition: attachment; filename=" . $newName);
 
-    echo $bmp->getData();
+    echo $fileStream->getData();
 
 } catch (Exception $e) {
 

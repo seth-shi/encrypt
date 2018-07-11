@@ -10,9 +10,9 @@ class FileSystem
     /**
      * 存储位图的对象
      *
-     * @var $bmp BMP
+     * @var $fileStream FileStream
      */
-    protected $bmp;
+    protected $fileStream;
 
     /**
      * 初始化文件信息，得到需要加密文件的文件名、
@@ -27,27 +27,25 @@ class FileSystem
          $fileName = basename($filePath);
          $fileData = file_get_contents($filePath);
 
-         $this->bmp->setName($fileName)
-                   ->setData($fileData)
-                   // 文件名字长度 四个字节长度存储
-                   ->setNameSize(
-                       str_pad(
-                           strlen($fileName),
-                           Encryption::FILE_NAME_SIZE_STORAGE_LENGTH,
-                           '0',
-                           STR_PAD_LEFT
-                       )
-                   )
-                   ->setDataSize(
-                       str_pad(
-                           strlen($fileData),
-                           Encryption::FILE_DATA_SIZE_STORAGE_LENGTH,
-                           '0',
-                           STR_PAD_LEFT
-                       )
-                   );
-
-
+         $this->fileStream->setName($fileName)
+                          ->setData($fileData)
+                          // 文件名字长度 四个字节长度存储
+                          ->setNameSize(
+                               str_pad(
+                                   strlen($fileName),
+                                   Encryption::FILE_NAME_SIZE_STORAGE_LENGTH,
+                                   '0',
+                                   STR_PAD_LEFT
+                               )
+                           )
+                           ->setDataSize(
+                               str_pad(
+                                   strlen($fileData),
+                                   Encryption::FILE_DATA_SIZE_STORAGE_LENGTH,
+                                   '0',
+                                   STR_PAD_LEFT
+                               )
+                           );
      }
 
     /**
@@ -133,7 +131,7 @@ class FileSystem
      */
     protected function getHeadDataAndNameSize()
     {
-        return $this->getHeadDataSize() + intval($this->bmp->getNameSize());
+        return $this->getHeadDataSize() + intval($this->fileStream->getNameSize());
     }
 
     /**
@@ -145,8 +143,8 @@ class FileSystem
     protected function getBodyDataSize()
     {
         return (
-            intval($this->bmp->getNameSize()) +
-            intval($this->bmp->getDataSize())
+            intval($this->fileStream->getNameSize()) +
+            intval($this->fileStream->getDataSize())
         );
     }
 
@@ -158,10 +156,10 @@ class FileSystem
     protected function getContent()
     {
         return (
-            $this->bmp->getNameSize() .
-            $this->bmp->getDataSize() .
-            $this->bmp->getName() .
-            $this->bmp->getData()
+            $this->fileStream->getNameSize() .
+            $this->fileStream->getDataSize() .
+            $this->fileStream->getName() .
+            $this->fileStream->getData()
         );
     }
  }

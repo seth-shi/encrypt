@@ -18,18 +18,26 @@ composer require davidnineroc/encrypt
     try {
          $encrypt = new \DavidNineRoc\Encrypt\Handler($bmpPath);
          
-         // 加密
+         // 1. 加密文件
+         // 2. 返回一个 FileStream 对象
          $encryptFile = __DIR__.'/data/gps.txt';
-         // 返回一个 BMP 对象, 如果传入参数 2，则直接生成新文件
-         $bmp = $encrypt->encrypt($encryptFile);
+         $fileStream = $encrypt->encrypt($encryptFile);
          
-         // 返回一个 BMP 对象, 如果传入参数 2，则直接生成新文件
-         $bmp = $encrypt->decrypt();
+         // 解密返回一个 FileStream 对象
+         $fileStream = $encrypt->decrypt();
+         
+         // 获取文件名
+         // 获取文件数据
+         $fileStream->getName();
+         $fileStream->getData();
+         // 如需保存
+         file_put_contents($fileStream->getName(), $fileStream->getData());
+         
     } catch (Exception $e) {
         echo $e->getMessage();
     }
 ```
-### 解密说明
+### 使用说明
 * [demo](demo/) 目录下有直接可以运行的例子
 ****
 ```bash

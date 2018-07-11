@@ -3,7 +3,6 @@
 namespace DavidNineRoc\Encrypt;
 
 
-use DavidNineRoc\Encrypt\Exceptions\DirException;
 use DavidNineRoc\Encrypt\Exceptions\FileNonExistsException;
 use DavidNineRoc\Encrypt\Exceptions\FileNotBMPException;
 use DavidNineRoc\Encrypt\Exceptions\ReadFileException;
@@ -17,15 +16,15 @@ class Handler extends FileSystem
     /**
      * 存储需要操作的文件路径
      *
-     * @param $pictureFile
+     * @param $filePath
      * @throws FileNonExistsException
      * @throws FileNotBMPException
      */
-    public function __construct($pictureFile)
+    public function __construct($filePath)
     {
-        $this->checkFileType($pictureFile);
+        $this->checkFileType($filePath);
 
-        $this->bmp = new FileStream($pictureFile);
+        $this->fileStream = new FileStream($filePath);
     }
 
     /**
@@ -57,12 +56,10 @@ class Handler extends FileSystem
     /**
      * 加密文件调用此方法
      * 参数一需传入一个需要加密的文件（不限类型
-     * 参数二不传则返回一个二进制字符串
      *    否则生成新文件
      *
-     * @param      $encryptFile
-     * @param null $newFileName
-     * @return bool|FileStream
+     * @param  $encryptFile
+     * @return FileStream
      */
     public function encrypt($encryptFile)
     {
@@ -71,13 +68,13 @@ class Handler extends FileSystem
         // 1. 获取数据区所在图片的位置
         // 2. 获取存储数据的总长度
         // 3. 获取存储的总数据
-        $offset = $this->getOffsetPoint($bmpPath = $this->bmp->getPath());
+        $offset = $this->getOffsetPoint($fileStreamPath = $this->fileStream->getPath());
         $length = $this->getContentSize();
         $content = $this->getContent();
 
 
         // 核心处理文件
-        $this->readFileHandler($bmpPath, function ($pf) use ($offset, $length, $content) {
+        $this->readFileHandler($fileStreamPath, function ($pf) use ($offset, $length, $content) {
             // 一次性读取完文件头信息，这些数据无法操作
             $data = fread($pf, $offset);
 
@@ -102,27 +99,25 @@ class Handler extends FileSystem
                 throw new ReadFileException('图片太小，不足以加密内容');
             }
 
-            $this->bmp->setData($data);
+            $this->fileStream->setData($data);
         });
 
 
-        return $this->bmp;
+        return $this->fileStream;
     }
 
 
     /**
-     * 解密文件
+     * 解密文件, 直接返回一个 FileStream 对象
      *
      * @return FileStream
-     * @throws DirException
-     *
      */
     public function decrypt()
     {
         // 1. 获取数据区所在图片的位置
-        $offset = $this->getOffsetPoint($bmpPath = $this->bmp->getPath());
+        $offset = $this->getOffsetPoint($fileStreamPath = $this->fileStream->getPath());
 
-        $this->readFileHandler($bmpPath, function ($pf) use ($offset) {
+        $this->readFileHandler($fileStreamPath, function ($pf) use ($offset) {
             // 跳过没有操作过的文件头信息，这些数据无法操作
             // 存储文件名和文件数据的长度
             fread($pf, $offset);
@@ -136,19 +131,19 @@ class Handler extends FileSystem
 
                 // 1 ~ 4 四个字节    是文件名大小
                 if ($i <= Encryption::FILE_NAME_SIZE_STORAGE_LENGTH) {
-                    $this->bmp->catNameSize($alpha);
+                    $this->fileStream->catNameSize($alpha);
                 }
                 // 5 ~ 16 八个字节    是文件数据的大小
                 elseif ($i <= $this->getHeadDataSize()) {
-                    $this->bmp->catDataSize($alpha);
+                    $this->fileStream->catDataSize($alpha);
                 }
                 // 16 ~ 16+BMP::nameSize 因为要前面两个判断会影响 nameSize，所以,不断通过函数判断
                 elseif ($i <= $this->getHeadDataAndNameSize()) {
-                    $this->bmp->catName($alpha);
+                    $this->fileStream->catName($alpha);
                 }
                 // 如上，上面是文件名字长度，这个是文件内容长度
                 elseif ($i <= $this->getContentSize()) {
-                    $this->bmp->catData($alpha);
+                    $this->fileStream->catData($alpha);
                 }
                 // 后面的已经不是有效的数据区了，可以直接退出
                 else {
@@ -159,6 +154,6 @@ class Handler extends FileSystem
 
         });
 
-        return $this->bmp;
+        return $this->fileStream;
     }
 }

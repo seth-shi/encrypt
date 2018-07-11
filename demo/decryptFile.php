@@ -14,14 +14,14 @@ if ($encryptFile['error'] !== 0) {
 
 try {
     $encrypt = new \DavidNineRoc\Encrypt\Handler($encryptFile['tmp_name']);
-    $bmp = $encrypt->decrypt();
+    $fileStream = $encrypt->decrypt();
 
     // 下载文件
     header('Content-Type: application/octet-stream');
     header("Accept-Ranges: bytes");
-    header("Accept-Length: " . $bmp->getDataSize());
-    header("Content-Disposition: attachment; filename=" . $bmp->getName());
-    echo $bmp->getData();
+    header("Accept-Length: " . $fileStream->getDataSize());
+    header("Content-Disposition: attachment; filename=" . $fileStream->getName());
+    echo $fileStream->getData();
 } catch (Exception $exception) {
     msgBoxBackPage($exception->getMessage());
 }
