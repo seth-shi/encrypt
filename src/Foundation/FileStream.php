@@ -3,7 +3,7 @@
 namespace DavidNineRoc\Encrypt\Foundation;
 
 
-class BMP
+class FileStream
 {
     /**
      * @var string $name
@@ -55,7 +55,7 @@ class BMP
 
     /**
      * @param string $fileName
-     * @return BMP
+     * @return self
      */
     public function setName($fileName)
     {
@@ -74,7 +74,7 @@ class BMP
 
     /**
      * @param  string $fileNameSize
-     * @return BMP
+     * @return self
      */
     public function setNameSize($fileNameSize)
     {
@@ -93,7 +93,7 @@ class BMP
 
     /**
      * @param string $fileData
-     * @return BMP
+     * @return self
      */
     public function setData($fileData)
     {
@@ -112,7 +112,7 @@ class BMP
 
     /**
      * @param string $fileDataSize
-     * @return BMP
+     * @return self
      */
     public function setDataSize($fileDataSize)
     {
@@ -131,7 +131,7 @@ class BMP
 
     /**
      * @param string $filePath
-     * @return BMP
+     * @return self
      */
     public function setPath($filePath)
     {

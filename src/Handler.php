@@ -7,8 +7,8 @@ use DavidNineRoc\Encrypt\Exceptions\DirException;
 use DavidNineRoc\Encrypt\Exceptions\FileNonExistsException;
 use DavidNineRoc\Encrypt\Exceptions\FileNotBMPException;
 use DavidNineRoc\Encrypt\Exceptions\ReadFileException;
-use DavidNineRoc\Encrypt\Foundation\BMP;
 use DavidNineRoc\Encrypt\Foundation\Encryption;
+use DavidNineRoc\Encrypt\Foundation\FileStream;
 use DavidNineRoc\Encrypt\Foundation\FileSystem;
 
 
@@ -25,7 +25,7 @@ class Handler extends FileSystem
     {
         $this->checkFileType($pictureFile);
 
-        $this->bmp = new BMP($pictureFile);
+        $this->bmp = new FileStream($pictureFile);
     }
 
     /**
@@ -62,9 +62,9 @@ class Handler extends FileSystem
      *
      * @param      $encryptFile
      * @param null $newFileName
-     * @return bool|BMP
+     * @return bool|FileStream
      */
-    public function encrypt($encryptFile, $newFileName = null)
+    public function encrypt($encryptFile)
     {
         $this->initFileInfo($encryptFile);
 
@@ -106,21 +106,18 @@ class Handler extends FileSystem
         });
 
 
-        return is_null($newFileName) ?
-               $this->bmp :
-               (bool) file_put_contents($newFileName, $this->bmp->getData());
+        return $this->bmp;
     }
 
 
     /**
      * 解密文件
      *
-     * @param null $path
-     * @return bool|BMP
+     * @return FileStream
      * @throws DirException
      *
      */
-    public function decrypt($path = null)
+    public function decrypt()
     {
         // 1. 获取数据区所在图片的位置
         $offset = $this->getOffsetPoint($bmpPath = $this->bmp->getPath());
@@ -162,18 +159,6 @@ class Handler extends FileSystem
 
         });
 
-        if (is_null($path)) {
-            return $this->bmp;
-        }
-
-        if (! is_dir($path)) {
-            throw new DirException("[{$path}]目录不存在");
-        } elseif (! is_writable($path)) {
-            throw new DirException("[{$path}]目录不可写");
-        }
-
-        $fileName = trim($path, "/\\").'/'.$this->bmp->getName();
-
-        return (bool) file_put_contents($fileName, $this->bmp->getData());
+        return $this->bmp;
     }
 }
