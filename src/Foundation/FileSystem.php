@@ -8,8 +8,6 @@ use DavidNineRoc\Encrypt\Exceptions\ReadFileException;
 class FileSystem
 {
     /**
-     * 存储位图的对象
-     *
      * @var $fileStream FileStream
      */
     protected $fileStream;
