@@ -19,9 +19,9 @@ try {
     // 下载文件
     header('Content-Type: application/octet-stream');
     header("Accept-Ranges: bytes");
-    header("Accept-Length: " . $bmp->getFileDataSize());
-    header("Content-Disposition: attachment; filename=" . $bmp->getFileName());
-    echo $bmp->getFileData();
+    header("Accept-Length: " . $bmp->getDataSize());
+    header("Content-Disposition: attachment; filename=" . $bmp->getName());
+    echo $bmp->getData();
 } catch (Exception $exception) {
     msgBoxBackPage($exception->getMessage());
 }

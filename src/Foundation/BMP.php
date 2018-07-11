@@ -42,7 +42,7 @@ class BMP
 
     public function __construct($filePath)
     {
-        $this->path = $filePath;
+        $this->path = realpath($filePath);
     }
 
     /**

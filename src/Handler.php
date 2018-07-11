@@ -75,6 +75,7 @@ class Handler extends FileSystem
         $length = $this->getContentSize();
         $content = $this->getContent();
 
+
         // 核心处理文件
         $this->readFileHandler($bmpPath, function ($pf) use ($offset, $length, $content) {
             // 一次性读取完文件头信息，这些数据无法操作
@@ -104,12 +105,10 @@ class Handler extends FileSystem
             $this->bmp->setData($data);
         });
 
-        if (is_null($newFileName)) {
-            return $this->bmp;
-        }
 
-
-        return (bool) file_put_contents($newFileName, $this->bmp->getData());
+        return is_null($newFileName) ?
+               $this->bmp :
+               (bool) file_put_contents($newFileName, $this->bmp->getData());
     }
 
 
@@ -140,7 +139,7 @@ class Handler extends FileSystem
 
                 // 1 ~ 4 四个字节    是文件名大小
                 if ($i <= Encryption::FILE_NAME_SIZE_STORAGE_LENGTH) {
-                    $this->bmp->catName($alpha);
+                    $this->bmp->catNameSize($alpha);
                 }
                 // 5 ~ 16 八个字节    是文件数据的大小
                 elseif ($i <= $this->getHeadDataSize()) {
@@ -152,7 +151,7 @@ class Handler extends FileSystem
                 }
                 // 如上，上面是文件名字长度，这个是文件内容长度
                 elseif ($i <= $this->getContentSize()) {
-                    $this->bmp->catDataSize($alpha);
+                    $this->bmp->catData($alpha);
                 }
                 // 后面的已经不是有效的数据区了，可以直接退出
                 else {

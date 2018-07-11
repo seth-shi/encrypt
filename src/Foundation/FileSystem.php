@@ -22,9 +22,9 @@ class FileSystem
      */
      protected function initFileInfo($filePath)
      {
-         // 1. 文件名 base64，防止中文名字之类导致单个字节存储错误
+         // 1. 获取文件名
          // 2. 直接获取文件数据，如果内存不足，建议之前调用 ini_set
-         $fileName = base64_encode(basename($filePath));
+         $fileName = basename($filePath);
          $fileData = file_get_contents($filePath);
 
          $this->bmp->setName($fileName)

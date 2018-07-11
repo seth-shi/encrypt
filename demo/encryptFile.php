@@ -33,14 +33,17 @@ try {
     $encrypt = new \DavidNineRoc\Encrypt\Handler($bmpPath);
     $bmp = $encrypt->encrypt($encryptFileName);
 
+
     // 下载文件
     header("Content-Type: image/bmp");
     header("Accept-Ranges: bytes");
-    header("Accept-Length: " . $bmp->getFileDataSize());
+    header("Accept-Length: " . $bmp->getDataSize());
     header("Content-Disposition: attachment; filename=" . $newName);
-    echo $bmp->getFileData();
+
+    echo $bmp->getData();
 
 } catch (Exception $e) {
+
     msgBoxBackPage($e->getMessage());
 }
 

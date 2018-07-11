@@ -39,15 +39,15 @@ composer require davidnineroc/encrypt
  *     现在是等于 4, 用于约束文件名长度的大小（存储文件名大小的长度）
  * Encryption::FILE_DATA_SIZE_STORAGE_LENGTH
  *     现在是等于 12,用于约束文件数据长度的大小（存储文件数据大小的长度）
- * $fileNameSize
+ * $nameSize
  *     文件名存储的长度，永远都是 Encryption::FILE_NAME_SIZE_STORAGE_LENGTH 位,
  *     4 位的时候可能是这样 0018, 1293 之类的，用来保存文件名长度（base64）
- * $fileDataSize
+ * $dataSize
  *     文件数据存储的长度，永远都是 Encryption::FILE_DATA_SIZE_STORAGE_LENGTH 位,
  *     12 位的时候可能是 000019283848 之类的，用来保存加密文件数据的内容的长度
  ****************************************
  * 所以加密的内容长度有：
- * $fileNameSize + $fileDataSize + $fileName + $fileData
+ * $nameSize + $dataSize + $name + $data
  * 加密文件名的大小（4位
  * 加密文件数据的大小( 12 位
  * 加密文件名
