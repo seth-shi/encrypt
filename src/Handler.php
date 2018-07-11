@@ -7,18 +7,13 @@ use DavidNineRoc\Encrypt\Exceptions\DirException;
 use DavidNineRoc\Encrypt\Exceptions\FileNonExistsException;
 use DavidNineRoc\Encrypt\Exceptions\FileNotBMPException;
 use DavidNineRoc\Encrypt\Exceptions\ReadFileException;
+use DavidNineRoc\Encrypt\Foundation\BMP;
+use DavidNineRoc\Encrypt\Foundation\Encryption;
 use DavidNineRoc\Encrypt\Foundation\FileSystem;
 
 
-class Handler
+class Handler extends FileSystem
 {
-    use FileSystem;
-
-    /**
-     * @var $bmp BMP
-     */
-    protected $bmp;
-
     /**
      * 存储需要操作的文件路径
      *
@@ -34,7 +29,7 @@ class Handler
     }
 
     /**
-     * 检查文件类型是否符合
+     * 检查文件是否存在，并且是一个有效的 BMP 文件
      *
      * @param $pictureFile
      * @throws FileNonExistsException
@@ -60,7 +55,10 @@ class Handler
     }
 
     /**
-     * 加密文件
+     * 加密文件调用此方法
+     * 参数一需传入一个需要加密的文件（不限类型
+     * 参数二不传则返回一个二进制字符串
+     *    否则生成新文件
      *
      * @param      $encryptFile
      * @param null $newFileName
@@ -69,15 +67,16 @@ class Handler
     public function encrypt($encryptFile, $newFileName = null)
     {
         $this->initFileInfo($encryptFile);
+
         // 1. 获取数据区所在图片的位置
         // 2. 获取存储数据的总长度
         // 3. 获取存储的总数据
-        $offset = $this->getOffsetPoint($this->bmp->getFilePath());
-        $length = $this->getMemoryContentSize();
-        $content = $this->getMemoryContent();
+        $offset = $this->getOffsetPoint($bmpPath = $this->bmp->getPath());
+        $length = $this->getContentSize();
+        $content = $this->getContent();
 
         // 核心处理文件
-        $this->readFileHandler($this->bmp->getFilePath(), function ($pf) use ($offset, $length, $content) {
+        $this->readFileHandler($bmpPath, function ($pf) use ($offset, $length, $content) {
             // 一次性读取完文件头信息，这些数据无法操作
             $data = fread($pf, $offset);
 
@@ -102,7 +101,7 @@ class Handler
                 throw new ReadFileException('图片太小，不足以加密内容');
             }
 
-            $this->bmp->setFileData($data);
+            $this->bmp->setData($data);
         });
 
         if (is_null($newFileName)) {
@@ -110,7 +109,7 @@ class Handler
         }
 
 
-        return (bool) file_put_contents($newFileName, $this->bmp->getFileData());
+        return (bool) file_put_contents($newFileName, $this->bmp->getData());
     }
 
 
@@ -125,13 +124,12 @@ class Handler
     public function decrypt($path = null)
     {
         // 1. 获取数据区所在图片的位置
-        $offset = $this->getOffsetPoint($this->bmp->getFilePath());
+        $offset = $this->getOffsetPoint($bmpPath = $this->bmp->getPath());
 
-        $this->readFileHandler($this->bmp->getFilePath(), function ($pf) use ($offset) {
+        $this->readFileHandler($bmpPath, function ($pf) use ($offset) {
             // 跳过没有操作过的文件头信息，这些数据无法操作
             // 存储文件名和文件数据的长度
-            $data = fread($pf, $offset);
-            $headSize = Encryption::FILE_NAME_SIZE_STORAGE_LENGTH + Encryption::FILE_DATA_SIZE_STORAGE_LENGTH;
+            fread($pf, $offset);
 
             // 读取位图中的加密信息
             for ($i = 1; !feof($pf); ++$i)
@@ -140,31 +138,29 @@ class Handler
                 fread($pf, 3);
                 $alpha = fread($pf, 1);
 
-
+                // 1 ~ 4 四个字节    是文件名大小
                 if ($i <= Encryption::FILE_NAME_SIZE_STORAGE_LENGTH) {
-                    // 1 ~ 4 四个字节    是文件名长度数据
-                    $attribute = 'fileNameSize';
-                } elseif ($i <= $headSize) {
-                    // 5 ~ 16 八个字节    是文件数据长度
-                    $attribute = 'fileDataSize';
-                } elseif ($i <= ($headSize + intval($this->bmp->getFileNameSize()))) {
-                    // 16 ~ $this->file_name_length  是文件名
-                    $attribute = 'fileName';
-                } elseif ($i <= ($headSize + intval($this->bmp->getFileNameSize())) + intval($this->bmp->getFileDataSize())) {
-                    $attribute = 'fileData';
-                } else {
-                    // 后面的已经不是有效的数据区了，可以直接退出
+                    $this->bmp->catName($alpha);
+                }
+                // 5 ~ 16 八个字节    是文件数据的大小
+                elseif ($i <= $this->getHeadDataSize()) {
+                    $this->bmp->catDataSize($alpha);
+                }
+                // 16 ~ 16+BMP::nameSize 因为要前面两个判断会影响 nameSize，所以,不断通过函数判断
+                elseif ($i <= $this->getHeadDataAndNameSize()) {
+                    $this->bmp->catName($alpha);
+                }
+                // 如上，上面是文件名字长度，这个是文件内容长度
+                elseif ($i <= $this->getContentSize()) {
+                    $this->bmp->catDataSize($alpha);
+                }
+                // 后面的已经不是有效的数据区了，可以直接退出
+                else {
                     break;
                 }
 
-                // 根据动态属性拼接
-                $this->bmp->catAttributeValue($attribute, $alpha);
-
             }
 
-            $this->bmp->setFileName(
-                base64_decode($this->bmp->getFileName())
-            );
         });
 
         if (is_null($path)) {
@@ -177,8 +173,8 @@ class Handler
             throw new DirException("[{$path}]目录不可写");
         }
 
-        $fileName = trim($path, "/\\").'/'.$this->bmp->getFileName();
+        $fileName = trim($path, "/\\").'/'.$this->bmp->getName();
 
-        return (bool) file_put_contents($fileName, $this->bmp->getFileData());
+        return (bool) file_put_contents($fileName, $this->bmp->getData());
     }
 }

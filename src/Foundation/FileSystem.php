@@ -3,34 +3,34 @@
 namespace DavidNineRoc\Encrypt\Foundation;
 
 use Closure;
-use DavidNineRoc\Encrypt\BMP;
-use DavidNineRoc\Encrypt\Encryption;
 use DavidNineRoc\Encrypt\Exceptions\ReadFileException;
 
-trait FileSystem
+class FileSystem
 {
     /**
-     * 此处用于 IDE 识别
+     * 存储位图的对象
      *
      * @var $bmp BMP
      */
     protected $bmp;
 
     /**
-     * 初始化文件信息
+     * 初始化文件信息，得到需要加密文件的文件名、
+     * 文件数据，大小等数据
      *
      * @param $filePath
      */
      protected function initFileInfo($filePath)
      {
+         // 1. 文件名 base64，防止中文名字之类导致单个字节存储错误
+         // 2. 直接获取文件数据，如果内存不足，建议之前调用 ini_set
          $fileName = base64_encode(basename($filePath));
          $fileData = file_get_contents($filePath);
 
-         // base64 加密后的文件名
-         $this->bmp->setFileName($fileName)
-                   ->setFileData($fileData)
+         $this->bmp->setName($fileName)
+                   ->setData($fileData)
                    // 文件名字长度 四个字节长度存储
-                   ->setFileNameSize(
+                   ->setNameSize(
                        str_pad(
                            strlen($fileName),
                            Encryption::FILE_NAME_SIZE_STORAGE_LENGTH,
@@ -38,7 +38,7 @@ trait FileSystem
                            STR_PAD_LEFT
                        )
                    )
-                   ->setFileDataSize(
+                   ->setDataSize(
                        str_pad(
                            strlen($fileData),
                            Encryption::FILE_DATA_SIZE_STORAGE_LENGTH,
@@ -51,7 +51,8 @@ trait FileSystem
      }
 
     /**
-     * 文件的操作
+     * 文件的操作使用闭包的操作，减少每次手动打开关闭文件流
+     *
      * @param         $filePath
      * @param Closure $closure
      * @param string  $mode
@@ -74,24 +75,21 @@ trait FileSystem
      * @param $filename
      * @return mixed
      */
-    private function getOffsetPoint($filename)
+    protected function getOffsetPoint($filename)
     {
         return $this->readFileHandler($filename, function ($pf) {
             // 第 1 2 个字节是 BM
             fread($pf, 2);
 
             // 位图文件的大小转为十进制
-            // 不带有符号的长模式[long]（通常是32位，按机器字节顺序）
-            // 32 位正好四个字节
+            // 不带有符号的长模式[long]（通常是32位，按机器字节顺序）32 位正好四个字节
             fread($pf, 4);
-            // $size = unpack('L', $size);
 
             // 第 7  8  9  10 字节是保留的 必须为 0
             fread($pf, 4);
 
             // 第 11 12 13 14 字节给出位图阵列相对于文件头的偏移
             $offsetData = fread($pf, 4);
-
             $offsetData = unpack('L', $offsetData);
 
             if (! isset($offsetData[1])) {
@@ -109,28 +107,61 @@ trait FileSystem
      *
      * @return int
      */
-    protected function getMemoryContentSize()
+    protected function getContentSize()
+    {
+        return $this->getHeadDataSize() + $this->getBodyDataSize();
+    }
+
+    /**
+     * 获取头数据的大小，存储文件名字占用的大小 +
+     * 存储文件内容所占的大小
+     *
+     * @return int
+     */
+    protected function getHeadDataSize()
     {
         return (
             Encryption::FILE_NAME_SIZE_STORAGE_LENGTH +
-            Encryption::FILE_DATA_SIZE_STORAGE_LENGTH +
-            intval($this->bmp->getFileNameSize()) +
-            intval($this->bmp->getFileDataSize())
+            Encryption::FILE_DATA_SIZE_STORAGE_LENGTH
         );
     }
 
     /**
-     * 获取存储的内容
+     * 获取头数据的大小 + 文件名的长度
+     *
+     * @return int
+     */
+    protected function getHeadDataAndNameSize()
+    {
+        return $this->getHeadDataSize() + intval($this->bmp->getNameSize());
+    }
+
+    /**
+     * 获取数据区域的大小，文件名字所占的大小 +
+     * 文件内容所占的大小
+     *
+     * @return int
+     */
+    protected function getBodyDataSize()
+    {
+        return (
+            intval($this->bmp->getNameSize()) +
+            intval($this->bmp->getDataSize())
+        );
+    }
+
+    /**
+     * 获取所有需要存储的内容
      *
      * @return string
      */
-    protected function getMemoryContent()
+    protected function getContent()
     {
         return (
-            $this->bmp->getFileNameSize() .
-            $this->bmp->getFileDataSize() .
-            $this->bmp->getFileName() .
-            $this->bmp->getFileData()
+            $this->bmp->getNameSize() .
+            $this->bmp->getDataSize() .
+            $this->bmp->getName() .
+            $this->bmp->getData()
         );
     }
  }

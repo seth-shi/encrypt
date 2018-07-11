@@ -1,6 +1,6 @@
 <?php
 
-namespace DavidNineRoc\Encrypt;
+namespace DavidNineRoc\Encrypt\Foundation;
 
 class Encryption
 {
