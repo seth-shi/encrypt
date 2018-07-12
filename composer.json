@@ -11,5 +11,13 @@
         "psr-4": {
             "DavidNineRoc\\Encrypt\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DavidNineRoc\\Encrypt\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.2"
     }
 }

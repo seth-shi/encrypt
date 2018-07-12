@@ -14,17 +14,16 @@ use DavidNineRoc\Encrypt\Foundation\FileSystem;
 class Handler extends FileSystem
 {
     /**
-     * 存储需要操作的文件路径
+     * 参数传入一个文件路径
      *
-     * @param $filePath
+     * @param $file
      * @throws FileNonExistsException
      * @throws FileNotBMPException
      */
-    public function __construct($filePath)
+    public function __construct($file)
     {
-        $this->checkFileType($filePath);
-
-        $this->fileStream = new FileStream($filePath);
+        $this->checkFileType($file);
+        $this->fileStream = new FileStream($file);
     }
 
     /**
