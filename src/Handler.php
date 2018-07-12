@@ -69,8 +69,8 @@ class Handler extends FileSystem
         // 2. 获取加密文件的内容的大小
         // 3. 获取加密文件的内容
         $bmpOffset = $this->getOffsetPoint($bmpPath = $this->fileStream->getPath());
-        $encryptFileContentSize = $encryptFileStream->getContentSize();
-        $encryptFileContent = $encryptFileStream->getContent();
+        $encryptFileContentSize = $encryptFileStream->allSize();
+        $encryptFileContent = $encryptFileStream->all();
 
 
         // 核心处理文件
@@ -134,15 +134,15 @@ class Handler extends FileSystem
                     $this->fileStream->catNameSize($alpha);
                 }
                 // 5 ~ 16 八个字节    是文件数据的大小
-                elseif ($i <= $this->fileStream->getHeadDataSize()) {
+                elseif ($i <= $this->fileStream->headSize()) {
                     $this->fileStream->catDataSize($alpha);
                 }
                 // 16 ~ 16+BMP::nameSize 因为要前面两个判断会影响 nameSize，所以,不断通过函数判断
-                elseif ($i <= $this->fileStream->getHeadDataAndNameSize()) {
+                elseif ($i <= $this->fileStream->headAndNameSize()) {
                     $this->fileStream->catName($alpha);
                 }
                 // 如上，上面是文件名字长度，这个是文件内容长度
-                elseif ($i <= $this->fileStream->getContentSize()) {
+                elseif ($i <= $this->fileStream->allSize()) {
                     $this->fileStream->catData($alpha);
                 }
                 // 后面的已经不是有效的数据区了，可以直接退出

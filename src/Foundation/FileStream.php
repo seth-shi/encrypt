@@ -219,14 +219,29 @@ class FileStream
 
 
     /**
+     * 获取所有需要存储的内容
+     *
+     * @return string
+     */
+    public function all()
+    {
+        return (
+            $this->getNameSize() .
+            $this->getDataSize() .
+            $this->getName() .
+            $this->getData()
+        );
+    }
+
+    /**
      * 获取存储的长度
      * 存储文件名长度的长度 + 存储文件数据长度的长度 + 文件名的长度 + 文件数据的长度
      *
      * @return int
      */
-    public function getContentSize()
+    public function allSize()
     {
-        return $this->getHeadDataSize() + $this->getBodyDataSize();
+        return $this->headSize() + $this->bodySize();
     }
 
     /**
@@ -235,7 +250,7 @@ class FileStream
      *
      * @return int
      */
-    public function getHeadDataSize()
+    public function headSize()
     {
         return (
             Encryption::FILE_NAME_SIZE_STORAGE_LENGTH +
@@ -248,19 +263,19 @@ class FileStream
      *
      * @return int
      */
-    public function getHeadDataAndNameSize()
+    public function headAndNameSize()
     {
-        return $this->getHeadDataSize() + intval($this->getNameSize());
+        return $this->headSize() + intval($this->getNameSize());
     }
-    
-    
+
+
     /**
      * 获取数据区域的大小，文件名字所占的大小 +
      * 文件内容所占的大小
      *
      * @return int
      */
-    public function getBodyDataSize()
+    public function bodySize()
     {
         return (
             intval($this->getNameSize()) +
@@ -268,19 +283,4 @@ class FileStream
         );
     }
 
-    
-    /**
-     * 获取所有需要存储的内容
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return (
-            $this->getNameSize() .
-            $this->getDataSize() .
-            $this->getName() .
-            $this->getData()
-        );
-    }
 }

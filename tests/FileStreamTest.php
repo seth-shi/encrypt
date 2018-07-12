@@ -8,9 +8,12 @@ use PHPUnit\Framework\TestCase;
 
 class FileStreamTest extends TestCase
 {
+    const BMP_PATH = __DIR__ . '/../data/gps.txt';
+
     public function testAttribute()
     {
-        $this->assertTrue(true);
-        // $fileStream = new FileStream();
+        $fileStream = new FileStream(self::BMP_PATH, true);
+
+        $this->assertStringEqualsFile(self::BMP_PATH, $fileStream->getData());
     }
 }
