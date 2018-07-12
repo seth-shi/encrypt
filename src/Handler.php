@@ -62,20 +62,21 @@ class Handler extends FileSystem
      */
     public function encrypt($encryptFile)
     {
-        $this->initFileInfo($encryptFile);
+        // 初始化文件信息
+        $encryptFileStream = new FileStream($encryptFile, true);
 
-        // 1. 获取数据区所在图片的位置
-        // 2. 获取存储数据的总长度
-        // 3. 获取存储的总数据
-        $offset = $this->getOffsetPoint($fileStreamPath = $this->fileStream->getPath());
-        $length = $this->getContentSize();
-        $content = $this->getContent();
+        // 1. 获取 bmp 图片的偏移量
+        // 2. 获取加密文件的内容的大小
+        // 3. 获取加密文件的内容
+        $bmpOffset = $this->getOffsetPoint($bmpPath = $this->fileStream->getPath());
+        $encryptFileContentSize = $encryptFileStream->getContentSize();
+        $encryptFileContent = $encryptFileStream->getContent();
 
 
         // 核心处理文件
-        $this->readFileHandler($fileStreamPath, function ($pf) use ($offset, $length, $content) {
+        $this->readFileHandler($bmpPath, function ($pf) use ($bmpOffset, $encryptFileContentSize, $encryptFileContent) {
             // 一次性读取完文件头信息，这些数据无法操作
-            $data = fread($pf, $offset);
+            $data = fread($pf, $bmpOffset);
 
             // 把 Alpha 换成加密内容
             for ($i = 0; !feof($pf); ++$i) {
@@ -86,15 +87,15 @@ class Handler extends FileSystem
                 $alpha = fread($pf, 1);
 
                 // 如果当前还在存储区的内容，就把内容存进起来
-                if ($i < $length) {
-                    $alpha = $content{$i};
+                if ($i < $encryptFileContentSize) {
+                    $alpha = $encryptFileContent{$i};
                 }
 
                 $data .= $red . $green . $blue . $alpha;
             }
 
 
-            if ($i < $length) {
+            if ($i < $encryptFileContentSize) {
                 throw new ReadFileException('图片太小，不足以加密内容');
             }
 
@@ -133,15 +134,15 @@ class Handler extends FileSystem
                     $this->fileStream->catNameSize($alpha);
                 }
                 // 5 ~ 16 八个字节    是文件数据的大小
-                elseif ($i <= $this->getHeadDataSize()) {
+                elseif ($i <= $this->fileStream->getHeadDataSize()) {
                     $this->fileStream->catDataSize($alpha);
                 }
                 // 16 ~ 16+BMP::nameSize 因为要前面两个判断会影响 nameSize，所以,不断通过函数判断
-                elseif ($i <= $this->getHeadDataAndNameSize()) {
+                elseif ($i <= $this->fileStream->getHeadDataAndNameSize()) {
                     $this->fileStream->catName($alpha);
                 }
                 // 如上，上面是文件名字长度，这个是文件内容长度
-                elseif ($i <= $this->getContentSize()) {
+                elseif ($i <= $this->fileStream->getContentSize()) {
                     $this->fileStream->catData($alpha);
                 }
                 // 后面的已经不是有效的数据区了，可以直接退出
